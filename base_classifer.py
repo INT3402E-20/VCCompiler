@@ -9,8 +9,9 @@ boolean_literal = ("true", "false")
 # Base class for classifying
 class base_classifier:
 
-    # Curent token reading
+    # Curent token reading, false alarm to pass to next whitespace
     current_token = ""
+    false_alarm = False
     def __init__(self):
         pass
 
@@ -20,7 +21,7 @@ class base_classifier:
     
     # clear() to clear current_token and ready for next token
     def clear(self):
-        self.current_token = ""
+        base_classifier.current_token = ""
 
     # check_append(): NEED TO OVERWRITE, DEFAULT FALSE to check word/char passed is valid to append
     def check_append(self, token):
@@ -28,4 +29,4 @@ class base_classifier:
     
     # append() to append token to current_token
     def append(self, token):
-        self.current_token += token
+        base_classifier.current_token += token
