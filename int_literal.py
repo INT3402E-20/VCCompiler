@@ -14,6 +14,6 @@ class int_literal(bc.base_classifier):
     # is_final() to check if current_token is a keyword, identifier, or boolean literal (final state in graph)
     def is_final(self):
         if self.current_token:
-            return "literal"
+            return "int_literal"
         else:
             return ""
