@@ -1,47 +1,31 @@
-import string
+import base_classifer as bc
 
-# List of dictionaries
-keywords = ("boolean", "break", "continue", "else", "float", "for", "if", "int", "return", "void", "while")
-letters = string.ascii_letters + '_'
-digits = string.digits
-boolean_literal = ("true", "false")
-
-# Class for classifiying keywords, identifiers, and boolean literals (letter-first)
-class keyword_identifier:
-
-    # Curent token reading
-    current_token = ""
+# Inherit base_classifier class for classifiying keywords, identifiers, and boolean literals (letter-first)
+class keyword_identifier(bc.base_classifier):
     def __init__(self):
-        pass
+        super().__init__()
 
     # check_append() to check word/char passed is valid to append
     def check_append(self, token):
-        if token in letters + digits:
-            if not self.current_token and token not in letters:
+        if token in bc.letters + bc.digits:
+            
+            # Check first character is letter
+            if not self.current_token and token not in bc.letters:
                 return False
             return True
         else:
             return False
-
-    # append() to append token to current_token
-    def append(self, token):
-        if self.check_append(token):
-            self.current_token += token
     
     # is_final() to check if current_token is a keyword, identifier, or boolean literal (final state in graph)
     def is_final(self):
-        if self.current_token in keywords:
+        if self.current_token in bc.keywords:
             return "keyword"
-        elif self.current_token in boolean_literal:
+        elif self.current_token in bc.boolean_literal:
             return "literal"
         elif self.current_token:
             return "identifier"
         else:
             return ""
-    
-    # clear() to clear current_token and ready for next token
-    def clear(self):
-        self.current_token = ""
 
 
 # Testing below
