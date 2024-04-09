@@ -23,12 +23,9 @@ class State:
 
 
 class EndState(State):
-    def __init__(self, index, cb):
+    def __init__(self, index, evaluator):
         super().__init__(index)
-        self.cb = cb
+        self.evaluate = evaluator
 
     def is_end_state(self):
         return True
-
-    def callback(self, token):
-        return self.cb(token)

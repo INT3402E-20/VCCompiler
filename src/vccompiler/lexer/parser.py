@@ -20,13 +20,13 @@ def preprocess(source):
 
     while source_index < len(source):
         try:
-            token_len, (token, _) = comment_dfa.search(source[source_index:])
+            token, _ = comment_dfa.search(source[source_index:])
         except RuntimeError:
             processed += source[source_index]
             source_index += 1
         else:
-            source_index += token_len
-            logger.debug(f"found comment: {token}")
+            source_index += len(token)
+            logger.debug(f"found comment: {repr(token)}")
 
     assert processed[-1] == EOF
     processed = processed[:-1]
@@ -34,7 +34,7 @@ def preprocess(source):
     return processed
 
 
-def parse(source):
+def evaluate(source):
     source += EOF
 
     dfa = rules.dfa
@@ -42,9 +42,9 @@ def parse(source):
     token_list = []
 
     while source[source_index] != EOF:
-        token_len, (token, kind) = dfa.search(source[source_index:])
-        source_index += token_len
-        token_list.append((token, kind))
-        logger.debug(f"found {kind.value}: {token}")
+        token, (evaluated, kind) = dfa.search(source[source_index:])
+        source_index += len(token)
+        token_list.append((token, evaluated, kind))
+        logger.debug(f"found {kind.value}: {repr(token)}")
 
     return token_list
