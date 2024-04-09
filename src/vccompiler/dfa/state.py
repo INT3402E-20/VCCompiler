@@ -1,8 +1,8 @@
 class State:
     none = object()
 
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, index):
+        self.id = index
         self.transition = dict()
         self.default_transition = State.none
 
@@ -29,8 +29,8 @@ class State:
 
 
 class EndState(State):
-    def __init__(self, id, cb):
-        super().__init__(id)
+    def __init__(self, index, cb):
+        super().__init__(index)
         self.cb = cb
 
     def is_end_state(self):
