@@ -31,7 +31,7 @@ class keyword_identifier(bc.base_classifier):
 
 
 # Testing below
-text = "boolean check = false; float num = .1E2; int ui = 6"
+text = "boolean check = false; float num = ..1E-2e\nint ui = 6"
 
 # Define classifier (end with i), with currenti is current token type
 identifi = keyword_identifier()
@@ -55,9 +55,9 @@ for i in range(text.__len__()):
             currenti = floati
 
     # Check false alarm, with whitespace ending
-    # TODO: whitespace dictionary + rulesets
+    # TODO: Recheck whitespace dictionary + rulesets
     if currenti and currenti.false_alarm == True:
-        if text[i] == ' ':
+        if text[i] in bc.whitespace:
             currenti.false_alarm = False
             currenti.clear()
             currenti = None
@@ -82,21 +82,18 @@ for i in range(text.__len__()):
     if currenti:
         currenti.append(text[i])
         if not currenti.check_append(text[i+1]): 
-            if currenti == inti and text[i+1] in bc.letters.replace('e', '').replace('E', ''):
-                currenti.false_alarm = True
-                print("Wrong token")
-                continue
+            if (currenti == inti and text[i+1] in bc.letters.replace('e', '').replace('E', '')) or \
+                (currenti == floati and currenti.is_final() == "") or \
+                (currenti.is_final() == "float_literal" and text[i+1] in bc.letters):
+                    currenti.false_alarm = True
+                    print("Wrong token")
+                    continue
 
             if currenti == inti and floati.check_append(text[i+1]):
                 currenti = floati
                 continue
 
-            if currenti == floati and currenti.is_final() == "":
-                currenti.false_alarm = True
-                print("Wrong token")
-                continue
-
             if currenti.is_final() != "":
                 print(currenti.is_final() + " " + currenti.current_token)
                 currenti.clear()
-                currenti = None 
+                currenti = None

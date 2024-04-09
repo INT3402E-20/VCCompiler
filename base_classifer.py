@@ -5,6 +5,7 @@ keywords = ("boolean", "break", "continue", "else", "float", "for", "if", "int",
 letters = string.ascii_letters + '_'
 digits = string.digits
 boolean_literal = ("true", "false")
+whitespace = (' ', '\n', '\t', '\f', '\r\n')
 
 # Base class for classifying
 class base_classifier:
