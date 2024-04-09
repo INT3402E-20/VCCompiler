@@ -1,5 +1,6 @@
 import base_classifer as bc
 from int_literal import int_literal
+from float_literal import float_literal
 
 # Inherit base_classifier class for classifiying keywords, identifiers, and boolean literals (letter-first)
 class keyword_identifier(bc.base_classifier):
@@ -30,11 +31,12 @@ class keyword_identifier(bc.base_classifier):
 
 
 # Testing below
-text = "boolean check = false; int num = 8"
+text = "boolean check = false; float num = 8..4"
 
 # Define classifier (end with i), with currenti is current token type
 identifi = keyword_identifier()
 inti = int_literal()
+floati = float_literal()
 currenti = None
 
 for i in range(text.__len__()):
@@ -43,11 +45,14 @@ for i in range(text.__len__()):
         # Check around all type
         is_keyide_tree = identifi.check_append(text[i])
         is_int_tree = inti.check_append(text[i])
+        is_float_tree = floati.check_append(text[i])
 
         if is_keyide_tree:
             currenti = identifi
         elif is_int_tree:
             currenti = inti
+        elif is_float_tree:
+            currenti = floati
 
     # Check false alarm, with whitespace ending
     # TODO: whitespace dictionary + rulesets
@@ -76,12 +81,18 @@ for i in range(text.__len__()):
     # Every iteration, append
     if currenti:
         currenti.append(text[i])
-        if not currenti.check_append(text[i+1]) and currenti.is_final() != "":
-            if currenti == inti and text[i+1] in bc.letters:
+        if not currenti.check_append(text[i+1]): 
+            if (currenti == inti and text[i+1] in bc.letters.replace('e', '').replace('E', '')) or (currenti == floati):
                 currenti.false_alarm = True
                 print("Wrong token")
                 continue
 
-            print(currenti.is_final() + " " + currenti.current_token)
-            currenti.clear()
-            currenti = None 
+            if currenti == inti and floati.check_append(text[i+1]):
+                currenti = floati
+                continue
+
+            
+            if currenti.is_final() != "":
+                print(currenti.is_final() + " " + currenti.current_token)
+                currenti.clear()
+                currenti = None 
