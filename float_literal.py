@@ -9,10 +9,11 @@ class float_literal(bc.base_classifier):
         if token in bc.digits:
             return True
         elif token == '.':
-            if (self.current_token[-1] in bc.digits) and ('.' not in self.current_token) and ('e' not in self.current_token) and ('E' not in self.current_token):
+            if ('.' not in self.current_token) and ('e' not in self.current_token) and ('E' not in self.current_token):
                 return True
         elif token == 'e' or token == 'E':
-            if (self.current_token[-1] in bc.digits):
+            if (self.current_token) and (self.current_token[-1] in bc.digits) and ('e' not in self.current_token) \
+                and ('E' not in self.current_token):
                 return True
         elif token == '+' or token == '-':
             if ('e' in self.current_token or 'E' in self.current_token) and (self.current_token[-1] in ('e', 'E')):
@@ -22,7 +23,10 @@ class float_literal(bc.base_classifier):
         
     # is_final() to check if current_token is a keyword, identifier, or boolean literal (final state in graph)
     def is_final(self):
-        if self.current_token and ('.' in self.current_token or 'e' in self.current_token or 'E' in self.current_token)and self.current_token[-1] not in ('e', 'E', '+', '-'):
+        if len(self.current_token) == 1 and self.current_token in ('.', 'e', 'E', '+', '-'):
+            return ""
+        if self.current_token and ('.' in self.current_token or 'e' in self.current_token or 'E' in self.current_token) \
+            and self.current_token[-1] not in ('e', 'E', '+', '-'):
             return "float_literal"
         else:
             return ""

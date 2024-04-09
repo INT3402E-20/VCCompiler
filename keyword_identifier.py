@@ -31,7 +31,7 @@ class keyword_identifier(bc.base_classifier):
 
 
 # Testing below
-text = "boolean check = false; float num = 8..4"
+text = "boolean check = false; float num = .1E2; int ui = 6"
 
 # Define classifier (end with i), with currenti is current token type
 identifi = keyword_identifier()
@@ -82,7 +82,7 @@ for i in range(text.__len__()):
     if currenti:
         currenti.append(text[i])
         if not currenti.check_append(text[i+1]): 
-            if (currenti == inti and text[i+1] in bc.letters.replace('e', '').replace('E', '')) or (currenti == floati):
+            if currenti == inti and text[i+1] in bc.letters.replace('e', '').replace('E', ''):
                 currenti.false_alarm = True
                 print("Wrong token")
                 continue
@@ -91,7 +91,11 @@ for i in range(text.__len__()):
                 currenti = floati
                 continue
 
-            
+            if currenti == floati and currenti.is_final() == "":
+                currenti.false_alarm = True
+                print("Wrong token")
+                continue
+
             if currenti.is_final() != "":
                 print(currenti.is_final() + " " + currenti.current_token)
                 currenti.clear()
