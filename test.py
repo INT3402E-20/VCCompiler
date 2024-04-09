@@ -14,11 +14,11 @@ with open(args.input_file, "r") as f:
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-from src.vccompiler.lexical.parser import parse, preprocess
+from src.vccompiler import lexer
 
 source = content
-source = preprocess(source)
+source = lexer.preprocess(source)
 
-tokens = parse(source)
-
-print(tokens)
+tokens = lexer.evaluate(source)
+for token, evaluated, kind in tokens:
+    print(f"Kind = {kind.value}, token = {repr(token)}, evaluated = {repr(evaluated)}")

@@ -32,4 +32,4 @@ class DFA:
             raise RuntimeError("dfa error: ambiguous state")
 
         token, state = end_states.pop()
-        return len(token), state.callback(token)
+        return token, state.evaluate(token)
