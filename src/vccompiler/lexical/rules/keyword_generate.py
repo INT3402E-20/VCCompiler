@@ -15,12 +15,8 @@ for i in range(0, max_keyword_length):
         print(f"state{len(map_state)} = State({len(map_state)})")
         print(f"state{pre_state}.add('{char[-1]}', state{len(map_state)})")
         map_state.append(char)
-        
-        try:
-            other_state.index(char[:-1])
-        except ValueError:
-            print(f"state{pre_state}.default(state{len(other_state) + 99})")
-            other_state.append(char)
+        if pre_state != 0:
+            print(f"state{pre_state}.add(alias[\"letter\"] + alias[\"digit\"],state{99})")
 
     print()
 

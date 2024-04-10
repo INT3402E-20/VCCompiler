@@ -6,7 +6,9 @@ def identifier_cb(token):
     return token, TokenEnum.IDENTIFIER
 
 state0 = State(0)   # begin state
-state1 = EndState(1, identifier_cb)
+state1 = State(1)
+state2 = EndState(2, identifier_cb)
 
-state0.add_transition(alias["letter"], state1)
-state1.set_default_transition(state1)
+state0.add(alias["letter"], state1)
+state1.add(alias["letter"] + alias["digit"], state1)
+state1.default(state2)
