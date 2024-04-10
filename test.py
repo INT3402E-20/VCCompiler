@@ -7,18 +7,16 @@ parser.add_argument("input_file")
 
 args = parser.parse_args()
 
-content = ""
+source = ""
 with open(args.input_file, "r") as f:
-    content = f.read()
+    source = f.read()
 
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-from src.vccompiler.lexical.parser import parse, preprocess
+from src.vccompiler import lexer
 
-source = content
-source = preprocess(source)
 
-tokens = parse(source)
-
-print(tokens)
+tokens = lexer.preprocess(source)
+for token, evaluated, kind in tokens:
+    print(f"Kind = {kind.value}, token = {repr(token)}, evaluated = {repr(evaluated)}")
