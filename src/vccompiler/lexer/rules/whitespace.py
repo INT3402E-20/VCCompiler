@@ -8,9 +8,7 @@ def whitespace_cb(token):
 
 
 state0 = State(0)   # begin state
-state1 = State(1)
-state2 = EndState(2, whitespace_cb)
+state1 = EndState(1, whitespace_cb)
 
 state0.add(alias.whitespace, state1)
 state1.add(alias.whitespace, state1)
-state1.default(state2)
