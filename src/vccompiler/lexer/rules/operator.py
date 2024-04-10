@@ -7,6 +7,10 @@ def operator_cb(token):
     return token, TokenEnum.OPERATOR
 
 
+def comment_cb(token):
+    return token, TokenEnum.COMMENT
+
+
 state0 = State(0)   # begin state
 state1 = EndState(1, operator_cb)
 state2 = EndState(2, operator_cb)
@@ -24,12 +28,24 @@ state13 = EndState(13, operator_cb)
 state14 = EndState(14, operator_cb)
 state15 = State(15)
 state16 = EndState(16, operator_cb)
-state17 = State(17)
+state17 = EndState(17, comment_cb)
+state18 = State(18)
+state19 = State(19)
+state20 = EndState(20, comment_cb)
+
 
 state0.add("+", state1)
 state0.add("-", state2)
 state0.add("*", state3)
 state0.add("/", state4)
+state4.add("/", state17)
+state17.default(state17)
+state17.add("\n", State.none)
+state4.add("*", state18)
+state18.add("*", state19)
+state18.default(state18)
+state19.add("/", state20)
+state19.default(state18)
 
 state0.add("<", state5)
 state5.add("=", state6)
