@@ -14,6 +14,11 @@ with open(args.input_file, "r") as f:
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
-from src.vccompiler.lexical.parser import preprocess
+from src.vccompiler.lexical.parser import parse, preprocess
 
-print(preprocess(content).encode())
+source = content
+source = preprocess(source)
+
+tokens = parse(source)
+
+print(tokens)

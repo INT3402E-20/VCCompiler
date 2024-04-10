@@ -6,19 +6,13 @@ class State:
         self.transition = dict()
         self.default_transition = State.none
 
-    def add_transition(self, pattern, state):
+    def add(self, pattern, state):
         for ch in pattern:
             if ch in self.transition:
                 raise RuntimeError("duplicated transition")
             self.transition[ch] = state
-    
-    def add_negative_transition(self, pattern):
-        for ch in pattern:
-            if ch in self.transition:
-                raise RuntimeError("duplicated transition")
-            self.transition[ch] = State.none
-    
-    def set_default_transition(self, state):
+
+    def default(self, state):
         self.default_transition = state
 
     def consume(self, ch):
