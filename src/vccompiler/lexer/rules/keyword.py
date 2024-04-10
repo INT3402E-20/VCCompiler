@@ -3,13 +3,12 @@ from ..token import TokenEnum
 
 
 class KeywordGenerator:
-    def __init__(self, cb):
+    def __init__(self):
         self.initial_state = State(0)
         self.states = []
         self.index = 0
-        self.cb = cb
 
-    def add_keyword(self, keyword):
+    def add_keyword(self, keyword, callback):
         state = self.initial_state
         for pos, ch in enumerate(keyword):
             next_state = state.consume(ch)
@@ -17,7 +16,7 @@ class KeywordGenerator:
                 self.index += 1
                 if pos + 1 == len(keyword):
                     # last character
-                    new_state = EndState(self.index, self.cb)
+                    new_state = EndState(self.index, callback)
                 else:
                     # not the last character
                     new_state = State(self.index)
@@ -37,12 +36,12 @@ def keyword_cb(token):
     return token, TokenEnum.KEYWORD
 
 
-keyword_generator = KeywordGenerator(keyword_cb)
+keyword_generator = KeywordGenerator()
 
 KEYWORDS = ["if", "int"]
 
 for keyword in KEYWORDS:
-    keyword_generator.add_keyword(keyword)
+    keyword_generator.add_keyword(keyword, keyword_cb)
 
 states = keyword_generator.get_state_list()
 state0 = keyword_generator.get_initial_state()
