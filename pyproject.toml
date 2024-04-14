@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vccompiler"
+version = "0.0.1"
+description = "Efficient lexer for VC language"
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/INT3402E-20/VCCompiler"
+Issues = "https://github.com/INT3402E-20/VCCompiler/issues"
+
+[project.scripts]
+vclexer = "vccompiler.lexer:main"

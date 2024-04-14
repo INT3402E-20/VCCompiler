@@ -1,1 +1,1 @@
-from .parser import preprocess
+from .main import main
