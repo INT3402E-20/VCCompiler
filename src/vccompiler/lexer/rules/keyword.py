@@ -19,10 +19,13 @@ class KeywordGenerator:
                 if pos + 1 == len(keyword):
                     # last character, match the callback
                     new_state = EndState(self.index, callback)
+                    # print(f"id{self.index - 1}((({self.index - 1})))") # mermaid gen
                 else:
                     # not the last character, so any up til here is identifier
                     new_state = EndState(self.index, identifier_cb)
+                    # print(f"id{self.index - 1}(({self.index - 1}))") # mermaid gen
                 state.add(ch, new_state)
+                # print(f"id{state.id - 1 if state.id != 0 else 0}-->|{ch}|id{new_state.id - 1}") # mermaid gen
                 self.states.append(new_state)
                 next_state = new_state
             state = next_state

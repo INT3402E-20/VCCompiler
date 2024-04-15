@@ -31,3 +31,25 @@ state0.add("]", state6)
 state0.add(",", state7)
 
 state0.add(";", state8)
+
+# Mermaid graph:
+
+# flowchart TB
+#     id0((0))
+#     id1(((1)))
+#     id2(((2)))
+#     id3(((3)))
+#     id4(((4)))
+#     id5(((5)))
+#     id6(((6)))
+#     id7(((7)))
+#     id8(((8)))
+
+#     id0-->|"{"|id1
+#     id0-->|"}"|id2
+#     id0-->|"["|id3
+#     id0-->|"]"|id4
+#     id0-->|"("|id5
+#     id0-->|")"|id6
+#     id0-->|","|id7
+#     id0-->|";"|id8
