@@ -1,0 +1,2 @@
+class VCException(Exception):
+    pass

@@ -30,7 +30,7 @@ class DFA:
         filtered = [end_state for token_len, end_state in end_states if token_len == longest_token_len]
 
         if len(filtered) > 1:
-            raise RuntimeError("dfa error: ambiguous state")
+            raise RuntimeError("ambiguous dfa")
 
         state = filtered.pop()
         token = content[:longest_token_len]
