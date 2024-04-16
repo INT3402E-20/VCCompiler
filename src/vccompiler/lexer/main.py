@@ -5,7 +5,33 @@ import sys
 from ..dfa import DFA
 from . import rules
 from .token_types import TokenEnum
-from .util import tokenize
+from ..exceptions import VCSourceError
+
+
+logger = logging.getLogger(__name__)
+
+
+class LexerError(VCSourceError):
+    pass
+
+
+def tokenize(source, dfa):
+    source_index = 0
+    tokens = []
+
+    # loop until EOF
+    while source_index < len(source):
+        # find the longest unique matching token from the current position
+        try:
+            token, kind = dfa.search(source[source_index:])
+        except RuntimeError as err:
+            raise LexerError(source, source_index, err) from None
+        # raise the current position
+        source_index += len(token)
+        logger.info(f"found {kind.value}: {repr(token)}")
+
+        tokens.append((token, kind))
+    return tokens
 
 
 def main():
@@ -18,6 +44,8 @@ def main():
                         help='output file',
                         default=sys.stdout,
                         type=argparse.FileType('w'))
+    parser.add_argument('-r', '--rule',
+                        help='rules file')
     parser.add_argument('input',
                         help='source file',
                         type=argparse.FileType('r'))
@@ -33,7 +61,16 @@ def main():
         logging.basicConfig(level=logging.DEBUG)
 
     # create DFA based on the specified rule
-    dfa = DFA(rules.vc)
+    if args.rule:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("", args.rule)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        dfa = DFA(module.rule)
+    else:
+        # use default rule
+        dfa = DFA(rules.vc)
 
     tokens = tokenize(args.input.read(), dfa)
 

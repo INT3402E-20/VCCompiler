@@ -3,6 +3,8 @@ from .state import State
 
 class DFA:
     def __init__(self, initial_states):
+        if not isinstance(initial_states, list):
+            initial_states = [initial_states]
         self.initial_states = initial_states
 
     def search(self, content):

@@ -1,6 +1,5 @@
-from ...dfa import EndState, State
-from ..token_types import TokenEnum
-from .. import charset
+from vccompiler.dfa import EndState, State
+from vccompiler.lexer.token_types import TokenEnum
 
 
 state0 = State(0)   # begin state

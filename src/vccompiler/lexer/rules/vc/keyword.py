@@ -1,6 +1,6 @@
-from ...dfa import EndState, State
-from ..token_types import TokenEnum
-from ..charset import alias
+from vccompiler.dfa import EndState, State
+from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.lexer.charset import *
 
 
 class KeywordGenerator:
