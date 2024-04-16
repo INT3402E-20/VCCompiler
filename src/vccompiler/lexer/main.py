@@ -14,7 +14,7 @@ logger = logging.getLogger()
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose',
-                        help='verbosity level',
+                        help='default: WARN; (-v): INFO; (-vv): DEBUG',
                         action='count',
                         default=0)
     parser.add_argument('-o', '--output',

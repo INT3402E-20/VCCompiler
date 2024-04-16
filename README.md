@@ -19,7 +19,7 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -v, --verbose         verbosity level
+  -v, --verbose         default: WARN; (-v): INFO; (-vv): DEBUG
   -o OUTPUT, --output OUTPUT
                         output file
 ```
