@@ -6,7 +6,7 @@ from ..charset import alias
 class KeywordGenerator:
     def __init__(self):
         self.initial_state = State(0)
-        self.fallback_state = EndState(1, identifier_cb)
+        self.fallback_state = EndState(1, TokenEnum.IDENTIFIER)
         self.states = []
         self.index = 1
 
@@ -22,7 +22,7 @@ class KeywordGenerator:
                     # print(f"id{self.index - 1}((({self.index - 1})))") # mermaid gen
                 else:
                     # not the last character, so any up til here is identifier
-                    new_state = EndState(self.index, identifier_cb)
+                    new_state = EndState(self.index, TokenEnum.IDENTIFIER)
                     # print(f"id{self.index - 1}(({self.index - 1}))") # mermaid gen
                 state.add(ch, new_state)
                 # print(f"id{state.id - 1 if state.id != 0 else 0}-->|{ch}|id{new_state.id - 1}") # mermaid gen
@@ -56,22 +56,15 @@ class KeywordGenerator:
         return self.initial_state
 
 
-def keyword_cb(token):
-    return token, TokenEnum.KEYWORD
-
-def identifier_cb(token):
-    return token, TokenEnum.IDENTIFIER
-
-
 keyword_generator = KeywordGenerator()
 
 KEYWORDS = ["boolean", "break", "continue", "else", "float", "for","if", "int", "return", "void", "while"]
 
 for keyword in KEYWORDS:
-    keyword_generator.add_keyword(keyword, keyword_cb)
+    keyword_generator.add_keyword(keyword, TokenEnum.KEYWORD)
 
-keyword_generator.add_keyword("true", lambda token: (token, TokenEnum.LITERAL))
-keyword_generator.add_keyword("false", lambda token: (token, TokenEnum.LITERAL))
+keyword_generator.add_keyword("true", TokenEnum.LITERAL)
+keyword_generator.add_keyword("false", TokenEnum.LITERAL)
 keyword_generator.add_fallback_to_all()
 
 # repeat EndState as if there still identifier

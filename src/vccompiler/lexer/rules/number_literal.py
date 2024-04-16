@@ -3,18 +3,14 @@ from ..token import TokenEnum
 from .. charset import *
 
 
-def number_literal_cb(token):
-    return token, TokenEnum.LITERAL
-
-
 state0 = State(0)
-state1 = EndState(1, number_literal_cb)
-state2 = EndState(2, number_literal_cb)
+state1 = EndState(1, TokenEnum.LITERAL)
+state2 = EndState(2, TokenEnum.LITERAL)
 state3 = State(3)
 state4 = State(4)
-state5 = EndState(5, number_literal_cb)
+state5 = EndState(5, TokenEnum.LITERAL)
 state6 = State(6)
-state7 = EndState(7, number_literal_cb)
+state7 = EndState(7, TokenEnum.LITERAL)
 
 
 state0.add(alias.digit, state1)

@@ -3,14 +3,10 @@ from ..token import TokenEnum
 from ..charset import *
 
 
-def string_literal_cb(token):
-    return token, TokenEnum.LITERAL
-
-
 state0 = State(0)
 state1 = State(1)
 state2 = State(2)
-state3 = EndState(3, string_literal_cb)
+state3 = EndState(3, TokenEnum.LITERAL)
 
 state0.add("\"", state1)
 state1.default(state1)

@@ -43,10 +43,10 @@ def main():
     # loop until EOF
     while source_index < len(source):
         # find the longest unique matching token from the current position
-        token, (evaluated, kind) = dfa.search(source[source_index:])
+        token, kind = dfa.search(source[source_index:])
         # raise the current position
         source_index += len(token)
-        logger.debug(f"found {kind.value}: {repr(token)}, evaluated {repr(evaluated)}")
+        logger.debug(f"found {kind.value}: {repr(token)}")
 
         # skip whitespace and comment
         if kind == TokenEnum.WHITESPACE or kind == TokenEnum.COMMENT:

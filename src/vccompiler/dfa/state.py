@@ -23,9 +23,9 @@ class State:
 
 
 class EndState(State):
-    def __init__(self, index, evaluator):
+    def __init__(self, index, hook):
         super().__init__(index)
-        self.evaluate = evaluator
+        self.hook = hook
 
     def is_end_state(self):
         return True

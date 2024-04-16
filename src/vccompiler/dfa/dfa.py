@@ -34,4 +34,4 @@ class DFA:
 
         state = filtered.pop()
         token = content[:longest_token_len]
-        return token, state.evaluate(token)
+        return token, state.hook
