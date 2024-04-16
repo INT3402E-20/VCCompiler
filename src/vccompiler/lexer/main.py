@@ -1,14 +1,11 @@
-from ..dfa import DFA
-from . import rules
-
 import argparse
 import logging
 import sys
 
-from .token import TokenEnum
-
-
-logger = logging.getLogger()
+from ..dfa import DFA
+from . import rules
+from .token_types import TokenEnum
+from .util import tokenize
 
 
 def main():
@@ -37,19 +34,10 @@ def main():
 
     # create DFA based on the specified rule
     dfa = DFA(rules.vc)
-    source = args.input.read()
-    source_index = 0
 
-    # loop until EOF
-    while source_index < len(source):
-        # find the longest unique matching token from the current position
-        token, kind = dfa.search(source[source_index:])
-        # raise the current position
-        source_index += len(token)
-        logger.debug(f"found {kind.value}: {repr(token)}")
+    tokens = tokenize(args.input.read(), dfa)
 
-        # skip whitespace and comment
-        if kind == TokenEnum.WHITESPACE or kind == TokenEnum.COMMENT:
-            continue
-
-        print(token, file=args.output)
+    for token, kind in tokens:
+        # skip whitespaces and comments
+        if kind != TokenEnum.WHITESPACE and kind != TokenEnum.COMMENT:
+            print(token, file=args.output)

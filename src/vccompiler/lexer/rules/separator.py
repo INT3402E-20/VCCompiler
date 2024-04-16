@@ -1,5 +1,5 @@
 from ...dfa import EndState, State
-from ..token import TokenEnum
+from ..token_types import TokenEnum
 from .. import charset
 
 
