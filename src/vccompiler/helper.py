@@ -31,6 +31,6 @@ def get_line_at(source, line_number):
     newlines = get_newlines(source)
 
     position_left = 0 if line_number == 1 else newlines[line_number - 2] + 1
-    position_right = -1 if line_number >= len(newlines) + 1 else newlines[line_number - 1]
+    position_right = len(source) if line_number >= len(newlines) + 1 else newlines[line_number - 1]
 
     return source[position_left:position_right]
