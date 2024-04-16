@@ -4,7 +4,7 @@
 ## Install
 
 ```shell
-$ git clone https://github.com/INT3402E-20/VCCompiler/tree/main
+$ git clone https://github.com/INT3402E-20/VCCompiler.git
 $ python3 -m pip install .
 ```
 
