@@ -1,9 +1,13 @@
 import logging
 
-from .exceptions import LexerError
+from ..exceptions import VCSourceError
 
 
 logger = logging.getLogger(__name__)
+
+
+class LexerError(VCSourceError):
+    pass
 
 
 def tokenize(source, dfa):

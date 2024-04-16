@@ -26,7 +26,7 @@ def get_line_column_number(source, source_index):
 
 def get_line_at(source, line_number):
     # line number is 1-indexed
-    assert line_number <= get_number_of_lines(source)
+    assert 1 <= line_number <= get_number_of_lines(source)
 
     newlines = get_newlines(source)
 
