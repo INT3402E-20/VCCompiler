@@ -16,6 +16,23 @@ class LexerError(SourceError):
 
 
 def tokenize(source, dfa):
+    """
+    .. py:function:: tokenize(source, dfa)
+
+    Tokenize the input source using a given DFA (Deterministic Finite Automaton).
+
+    :param source: The input source code to tokenize.
+    :type source: str
+
+    :param dfa: The DFA representing the rules.
+    :type dfa: DFA
+
+    :return: A list of tuples containing valid tokens and their associated kinds.
+    :rtype: list(tuple(str, callable))
+
+    :raises LexerError: If no valid token is found (reaches a "none" state) or if the DFA is ambiguous.
+
+    """
     source_index = 0
     tokens = []
 

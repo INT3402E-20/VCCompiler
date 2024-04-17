@@ -2,12 +2,36 @@ from .state import State
 
 
 class DFA:
+    """
+    .. py:class:: DFA
+
+    This class represents a Deterministic Finite Automaton (DFA).
+
+    :param initial_states: The initial state(s) of the DFA.
+    :type initial_states: list or State
+
+    :ivar initial_states: List of initial states.
+    :vartype initial_states: list
+    """
     def __init__(self, initial_states):
         if not isinstance(initial_states, list):
             initial_states = [initial_states]
         self.initial_states = initial_states
 
     def search(self, content):
+        """
+        .. py:method:: search(content)
+
+        Search for a valid token in the given string using the DFA.
+
+        :param content: The input string to search.
+        :type content: str
+
+        :return: A tuple containing the valid token and the associated hook.
+        :rtype: tuple(str, any)
+
+        :raises RuntimeError: If no valid token is found (reaches a "none" state) or if the DFA is ambiguous.
+        """
         end_states = []
 
         for state in self.initial_states:
