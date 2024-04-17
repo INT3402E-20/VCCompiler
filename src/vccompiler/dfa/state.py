@@ -13,7 +13,9 @@ class State:
                 raise RuntimeError("duplicated transition")
             self.transition[ch] = state
 
-    def default(self, state):
+    def default(self, state, skip_check=False):
+        if not skip_check and self.default_transition is not State.none:
+            raise RuntimeError("duplicated transition")
         self.default_transition = state
 
     def copy(self, new_id=-1):
