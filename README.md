@@ -23,3 +23,33 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file
 ```
+
+## Structure
+
+- `tokenize(source, dfa)`
+  - Tokenize the input source using a given DFA (Deterministic Finite Automaton).
+
+- class `DFA`
+  - This class represents a Deterministic Finite Automaton (DFA).
+  - method:
+    - `search(content)`
+      - Search for a valid token in the given string using the DFA.
+
+- class `State`
+  - This class represents a state in a Deterministic Finite Automaton (DFA).
+  - method:
+    - `add(pattern, state, skip_check=False)`
+      - Add a transition from the current state to another state based on a pattern.
+    - `default(state, skip_check=False)`
+      - Set the default transition state when no specific transition is defined.
+    - `copy(new_id=-1)`
+      - Clone the current state with an optional new identifier.
+    - `consume(ch)`
+      - Determine the next state based on the input character.
+    - `insert_keyword(keyword, index, hook)`
+      - Insert a keyword into the DFA by creating transitions and updating hooks.
+    - `is_end_state()`
+      - Check if the current state is an end state (has an associated hook).
+
+- `EndState(index, hook)`
+  - Create an end state with the specified index and hook.
