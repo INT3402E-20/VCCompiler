@@ -1,16 +1,16 @@
 from vccompiler.dfa import EndState, State
-from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.lexer.token_types import *
 
 
 state0 = State(0)   # begin state
-state1 = EndState(1, TokenEnum.SEPARATOR)
-state2 = EndState(2, TokenEnum.SEPARATOR)
-state3 = EndState(3, TokenEnum.SEPARATOR)
-state4 = EndState(4, TokenEnum.SEPARATOR)
-state5 = EndState(5, TokenEnum.SEPARATOR)
-state6 = EndState(6, TokenEnum.SEPARATOR)
-state7 = EndState(7, TokenEnum.SEPARATOR)
-state8 = EndState(8, TokenEnum.SEPARATOR)
+state1 = EndState(1, SEPARATOR)
+state2 = EndState(2, SEPARATOR)
+state3 = EndState(3, SEPARATOR)
+state4 = EndState(4, SEPARATOR)
+state5 = EndState(5, SEPARATOR)
+state6 = EndState(6, SEPARATOR)
+state7 = EndState(7, SEPARATOR)
+state8 = EndState(8, SEPARATOR)
 
 state0.add("{", state1)
 state0.add("}", state2)

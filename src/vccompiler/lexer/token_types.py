@@ -9,3 +9,6 @@ class TokenEnum(Enum):
     LITERAL = "literal"
     COMMENT = "comment"
     WHITESPACE = "whitespace"
+
+
+globals().update(TokenEnum.__members__)
