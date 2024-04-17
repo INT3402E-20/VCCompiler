@@ -3,6 +3,7 @@
 ## Graph
 
 ```mermaid
+%%{ init: { 'flowchart': { 'curve': 'monotoneX' } } }%%
 flowchart LR
     id0((0))
     id1(((1)))
@@ -226,7 +227,7 @@ flowchart LR
 
     id0-->|"+"|op1
     id0-->|"-"|op2
-    id0-->|"*"|op3
+    
     id0-->|"/"|op4
     op4-->|"*"|op5
     op5-->|"*"|op6
@@ -236,6 +237,8 @@ flowchart LR
     op6-->|any|op5
     op4-->|"/"|op8
     op8-->|any|op8
+
+    id0-->|"*"|op3
 
     id0-->|"<"|op9
     op9-->|"="|op10
