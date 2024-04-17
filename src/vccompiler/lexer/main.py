@@ -5,13 +5,13 @@ import sys
 from ..dfa import DFA
 from . import rules
 from .token_types import TokenEnum
-from ..exceptions import VCSourceError
+from ..exceptions import SourceError
 
 
 logger = logging.getLogger(__name__)
 
 
-class LexerError(VCSourceError):
+class LexerError(SourceError):
     pass
 
 

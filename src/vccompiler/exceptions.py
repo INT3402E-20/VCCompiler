@@ -1,3 +1,5 @@
+import string
+
 from .helper import get_line_column_number, get_number_of_lines, get_line_at
 
 
@@ -5,7 +7,7 @@ class VCException(Exception):
     pass
 
 
-class VCSourceError(VCException):
+class SourceError(VCException):
     def __init__(self, source, source_index, what):
         super().__init__()
         self.source = source
@@ -19,8 +21,10 @@ class VCSourceError(VCException):
         # print 3 lines around the error
         for i in range(line_number - 1, line_number + 2):
             if 1 <= i <= get_number_of_lines(self.source):
-                err_msg += f"{i: >8} | {get_line_at(self.source, i)}\n"
-            if i == line_number:
-                err_msg += " " * 10 + " " * column_number + "^\n"
+                line = get_line_at(self.source, i)
+                err_msg += f"{i: >8} | {line}\n"
+                if i == line_number:
+                    caret = "".join(ch if ch in string.whitespace else " " for ch in line[:column_number-1])
+                    err_msg += " " * 11 + caret + "^\n"
 
         return err_msg
