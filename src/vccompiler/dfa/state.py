@@ -25,6 +25,26 @@ class State:
     def consume(self, ch):
         return self.transition.get(ch, self.default_transition)
 
+    def insert_keyword(self, keyword, index, hook):
+        state = self
+        for ch in keyword:
+            old_state = state.consume(ch)
+
+            # clone old state
+            if old_state != State.none:
+                new_state = old_state.copy()
+            else:
+                new_state = State(-1)
+
+            # create transition from current state
+            state.add(ch, new_state, skip_check=True)
+            state = new_state
+
+        # overwrite the hook (token type) of the last state
+        state.hook = hook
+        state.id = index
+        return state
+
     def is_end_state(self):
         return self.hook is not None
 
