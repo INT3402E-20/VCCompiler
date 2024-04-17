@@ -3,7 +3,7 @@ from .string_literal import state0 as string_literal
 from .separator import state0 as separator
 from .operator import state0 as operator
 from .number_literal import state0 as number_literal
-from .keyword import state0 as keyword
+from .identifier import state0 as identifier
 
 
 __all__ = ['rule']
@@ -14,5 +14,5 @@ rule = [
     separator,
     operator,
     number_literal,
-    keyword,
+    identifier,
 ]
