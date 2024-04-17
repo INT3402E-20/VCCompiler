@@ -1,10 +1,7 @@
-// a legal comment
-/* this one too */
-/*//*
-/*/+#
-#!|
-| |||
-something
-SOMETHING
-//something else
-truefalse //dfskjdflskdjf
+int main() {
+	
+	boolean i = true && true;
+	putBoolLn(i);
+
+	return 0;
+}

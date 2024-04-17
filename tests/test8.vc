@@ -1,3 +1,17 @@
-// your scanner should return this an error token
-// your scanner should *not* print any error message
-.
+int main() {
+	
+	int i;
+
+	for (i = 0; i<5; i = i + 1) {
+		putIntLn(i);
+	}
+
+	i = 8;
+
+	while (i != 10) {
+		putIntLn(i);
+		i = i + 1;
+	}
+
+	return 0;
+}
