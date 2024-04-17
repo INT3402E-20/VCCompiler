@@ -32,10 +32,5 @@ class State:
         return str(self.id)
 
 
-class EndState(State):
-    def __init__(self, index, hook):
-        super().__init__(index)
-        self.hook = hook
-
-    def is_end_state(self):
-        return True
+def EndState(index, hook):
+    return State(index, hook)
