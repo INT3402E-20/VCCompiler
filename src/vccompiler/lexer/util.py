@@ -2,7 +2,7 @@ from ..dfa import State
 
 
 def insert_keyword(state, keyword, index, hook):
-    for pos, ch in enumerate(keyword):
+    for ch in keyword:
         old_state = state.consume(ch)
 
         # clone old state
@@ -11,12 +11,11 @@ def insert_keyword(state, keyword, index, hook):
         else:
             new_state = State(-1)
 
-        if pos + 1 == len(keyword):
-            # overwrite the hook (token type), if we reach the last character
-            new_state.hook = hook
-            new_state.id = index
-
         # create transition from current state
         state.add(ch, new_state, skip_check=True)
         state = new_state
+
+    # overwrite the hook (token type) of the last state
+    state.hook = hook
+    state.id = index
     return state
