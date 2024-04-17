@@ -35,7 +35,6 @@ state8.add("\n", State.none)
 state4.add("*", state5)
 state5.add("*", state6)
 state5.default(state5)
-state6.default(state6)
 state6.add("/", state7)
 state6.add("*", state6)
 state6.default(state5)
@@ -57,3 +56,59 @@ state17.add("|", state18)
 
 state0.add("&", state19)
 state19.add("&", state20)
+
+# Mermaid Graph:
+
+# flowchart TB
+#     op0((0)) 
+#     op1(((1)))
+#     op2(((2)))
+#     op3(((3)))
+#     op4(((4)))
+#     op5((5))
+#     op6((6))
+#     op7(((7)))
+#     op8(((8)))
+#     op9(((9)))
+#     op10(((10)))
+#     op11(((11)))
+#     op12(((12)))
+#     op13(((13)))
+#     op14(((14)))
+#     op15(((15)))
+#     op16(((16)))
+#     op17((17))
+#     op18(((18)))
+#     op19((19))
+#     op20(((20)))
+
+#     op0-->|"+"|op1
+#     op0-->|"-"|op2
+#     op0-->|"*"|op3
+#     op0-->|"/"|op4
+#     op4-->|"/"|op8
+#     op8-->|any|op8
+#     op4-->|"*"|op5
+#     op5-->|"*"|op6
+#     op5-->|any|op5
+#     op6-->|"/"|op7
+#     op6-->|"*"|op6
+#     op6-->|any|op5
+
+#     op0-->|"<"|op9
+#     op9-->|"="|op10
+
+#     op0-->|"="|op11
+#     op11-->|"="|op12
+
+#     op0-->|">"|op13
+#     op13-->|"="|op14
+
+#     op0-->|"!"|op15
+#     op15-->|"="|op16
+
+#     op0-->|"|"|op17
+#     op17-->|"|"|op18
+
+#     op0-->|"&"|op19
+#     op19-->|"&"|op20
