@@ -11,8 +11,8 @@ $ python3 -m pip install .
 ## Usage
 
 ```shell
-$ vclexer --help
-usage: vclexer [-h] [-v] [-o OUTPUT] input
+$ vclexer -h
+usage: vclexer [-h] [-v] [-o OUTPUT] [-r RULE] input
 
 positional arguments:
   input                 source file
@@ -22,6 +22,7 @@ options:
   -v, --verbose         default: WARN; (-v): INFO; (-vv): DEBUG
   -o OUTPUT, --output OUTPUT
                         output file
+  -r RULE, --rule RULE  rules file
 ```
 
 ## Structure
