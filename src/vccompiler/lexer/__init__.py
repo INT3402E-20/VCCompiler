@@ -1,2 +1,1 @@
-from vccompiler.lexer.entry import main
-
+from vccompiler.lexer.entry import main, tokenize

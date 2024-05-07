@@ -15,3 +15,4 @@ Issues = "https://github.com/INT3402E-20/VCCompiler/issues"
 
 [project.scripts]
 vclexer = "vccompiler.lexer:main"
+vcparser = "vccompiler.parser:main"
