@@ -1,4 +1,4 @@
-from .state import State
+from vccompiler.dfa.state import State
 
 
 class DFA:

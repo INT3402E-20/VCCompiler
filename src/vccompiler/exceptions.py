@@ -1,6 +1,6 @@
 import string
 
-from .helper import get_line_column_number, get_number_of_lines, get_line_at
+from vccompiler.helper import get_line_column_number, get_number_of_lines, get_line_at
 
 
 class VCException(Exception):

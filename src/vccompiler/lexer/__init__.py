@@ -1,1 +1,2 @@
-from .main import main
+from vccompiler.lexer.entry import main
+

@@ -1,2 +1,2 @@
-from .dfa import DFA
-from .state import EndState, State
+from vccompiler.dfa.dfa import DFA
+from vccompiler.dfa.state import EndState, State

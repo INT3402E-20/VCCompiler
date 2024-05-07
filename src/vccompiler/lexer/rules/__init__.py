@@ -1,1 +1,1 @@
-from .vc import rule as vc
+from vccompiler.lexer.rules.vc import rule as vc

@@ -2,10 +2,10 @@ import argparse
 import logging
 import sys
 
-from ..dfa import DFA
-from . import rules
-from .token_types import TokenEnum
-from ..exceptions import SourceError
+from vccompiler.dfa import DFA
+from vccompiler.lexer import rules
+from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.exceptions import SourceError
 
 
 logger = logging.getLogger(__name__)
