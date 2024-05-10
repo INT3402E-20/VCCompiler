@@ -1,4 +1,4 @@
-from vccompiler.lexer.token import TokenEnum
+from vccompiler.lexer.token import Token, TokenEnum
 
 
 class Symbol:
@@ -15,12 +15,12 @@ class Symbol:
     def is_terminal(self):
         return self.hook is not None
 
-    def fit(self, token, kind):
+    def fit(self, token: Token):
         assert self.is_terminal
 
         if isinstance(self.hook, TokenEnum):
-            return kind == self.hook
+            return token.kind == self.hook
         if isinstance(self.hook, str):
-            return token == self.hook
+            return token.value == self.hook
 
         assert False

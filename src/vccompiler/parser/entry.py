@@ -3,12 +3,18 @@ import logging
 import sys
 
 from vccompiler.dfa import DFA
+from vccompiler.exceptions import SourceError
 from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
+from vccompiler.ll1.grammar import LL1ParserError
 from vccompiler.parser import grammars
 
 
 logger = logging.getLogger(__name__)
+
+
+class ParserError(SourceError):
+    pass
 
 
 def main():
@@ -35,7 +41,8 @@ def main():
     else:
         logging.basicConfig(level=logging.DEBUG)
 
-    tokens = tokenize(args.input.read(), DFA(rules.vc))
+    source = args.input.read()
+    tokens = tokenize(source, DFA(rules.vc))
 
     # filter whitespaces and comments
     tokens = [token for token in tokens if token.kind != TokenEnum.WHITESPACE and token.kind != TokenEnum.COMMENT]
@@ -43,4 +50,7 @@ def main():
     # retrieve default grammar
     grammar = grammars.vc
     grammar.build()
-    grammar.parse(tokens)
+    try:
+        grammar.parse(tokens)
+    except LL1ParserError as e:
+        raise ParserError(source, e.token.start_pos, e.what)

@@ -8,10 +8,13 @@ from vccompiler.ll1.symbol import Symbol
 logger = logging.getLogger(__name__)
 
 
-class ParserError(VCException):
-    def __init__(self, token_index, what):
-        self.token_index = token_index
+class LL1ParserError(VCException):
+    def __init__(self, token, what):
+        self.token = token
         self.what = what
+
+    def __str__(self):
+        return self.what
 
 
 class Rule:
@@ -142,23 +145,23 @@ class LL1Grammar:
         while len(stack) > 0 and ptr < len(tokens):
             sym = stack.pop()
             if sym in self.terminals:
-                token, kind = tokens[ptr].value, tokens[ptr].kind
-                if sym.fit(token, kind):
+                token = tokens[ptr]
+                if sym.fit(token):
                     ptr += 1
                     logger.info(f"{sym} -> \"{token}\"")
                 else:
-                    raise ParserError(ptr, f"expected {sym}, found {token}")
+                    raise LL1ParserError(token, f"expected {sym}, found \"{token}\"")
             elif sym in self.non_terminals:
                 term = None
-                token, kind = tokens[ptr].value, tokens[ptr].kind
+                token = tokens[ptr]
                 for terminal in self.terminals:
-                    if terminal.fit(token, kind):
+                    if terminal.fit(token):
                         term = terminal
                 if term is None:
-                    raise ParserError(ptr, "unknown token")
+                    raise LL1ParserError(token, f"unknown token \"{token}\"")
 
                 if (sym, term) not in self.parsing_table:
-                    raise ParserError(ptr, "invalid token")
+                    raise LL1ParserError(token, f"invalid token \"{token}\"")
 
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
@@ -169,6 +172,6 @@ class LL1Grammar:
                 logger.info(f"{rule.alpha} -> {rule.betas}")
 
         if len(stack) > 0:
-            raise ParserError(ptr, "EOF reached")
+            raise LL1ParserError(tokens[ptr], "EOF reached")
         if ptr < len(tokens):
-            raise ParserError(ptr, f"expected EOF, found {tokens[ptr]}")
+            raise LL1ParserError(tokens[ptr], f"expected EOF, found \"{tokens[ptr]}\"")
