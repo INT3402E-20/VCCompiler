@@ -38,7 +38,7 @@ def main():
     tokens = tokenize(args.input.read(), DFA(rules.vc))
 
     # filter whitespaces and comments
-    tokens = [(token, kind) for token, kind in tokens if kind != TokenEnum.WHITESPACE and kind != TokenEnum.COMMENT]
+    tokens = [token for token in tokens if token.kind != TokenEnum.WHITESPACE and token.kind != TokenEnum.COMMENT]
 
     # retrieve default grammar
     grammar = grammars.vc

@@ -4,7 +4,7 @@ import sys
 
 from vccompiler.dfa import DFA
 from vccompiler.lexer import rules
-from vccompiler.lexer.token import TokenEnum
+from vccompiler.lexer.token import Token, TokenEnum
 from vccompiler.exceptions import SourceError
 
 
@@ -27,8 +27,8 @@ def tokenize(source, dfa):
     :param dfa: The DFA representing the rules.
     :type dfa: DFA
 
-    :return: A list of tuples containing valid tokens and their associated kinds.
-    :rtype: list(tuple(str, callable))
+    :return: List of extracted tokens.
+    :rtype: list(Token)
 
     :raises LexerError: If no valid token is found (reaches a "none" state) or if the DFA is ambiguous.
 
@@ -43,11 +43,12 @@ def tokenize(source, dfa):
             token, kind = dfa.search(source[source_index:])
         except RuntimeError as err:
             raise LexerError(source, source_index, err) from None
-        # raise the current position
-        source_index += len(token)
+
         logger.info(f"found {kind.value}: {repr(token)}")
 
-        tokens.append((token, kind))
+        tokens.append(Token(token, kind, source_index))
+        # raise the current position
+        source_index += len(token)
     return tokens
 
 
@@ -91,7 +92,7 @@ def main():
 
     tokens = tokenize(args.input.read(), dfa)
 
-    for token, kind in tokens:
+    for token in tokens:
         # skip whitespaces and comments
-        if kind != TokenEnum.WHITESPACE and kind != TokenEnum.COMMENT:
-            print(token, file=args.output)
+        if token.kind != TokenEnum.WHITESPACE and token.kind != TokenEnum.COMMENT:
+            print(token.value, file=args.output)
