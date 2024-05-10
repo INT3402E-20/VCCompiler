@@ -4,7 +4,7 @@ import sys
 
 from vccompiler.dfa import DFA
 from vccompiler.lexer import tokenize, rules
-from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.lexer.token import TokenEnum
 from vccompiler.parser import grammars
 
 

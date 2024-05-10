@@ -1,5 +1,5 @@
 from vccompiler.dfa import EndState, State
-from vccompiler.lexer.token_types import *
+from vccompiler.lexer.token import *
 
 
 state0 = State(0)   # begin state

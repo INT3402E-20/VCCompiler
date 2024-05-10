@@ -1,7 +1,11 @@
+import logging
 from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
-from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.symbol import Symbol
+
+
+logger = logging.getLogger(__name__)
 
 
 class ParserError(VCException):
@@ -141,6 +145,7 @@ class LL1Grammar:
                 token, kind = tokens[ptr]
                 if sym.fit(token, kind):
                     ptr += 1
+                    logger.info(f"{sym} -> \"{token}\"")
                 else:
                     raise ParserError(ptr, f"expected {sym}, found {token}")
             elif sym in self.non_terminals:
@@ -158,9 +163,10 @@ class LL1Grammar:
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
                     continue
+                assert rule.alpha == sym
                 for beta in reversed(rule.betas):
                     stack.append(beta)
-                print(rule.alpha, rule.betas)
+                logger.info(f"{rule.alpha} -> {rule.betas}")
 
         if len(stack) > 0:
             raise ParserError(ptr, "EOF reached")

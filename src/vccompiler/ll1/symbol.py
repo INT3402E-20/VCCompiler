@@ -1,4 +1,4 @@
-from vccompiler.lexer.token_types import TokenEnum
+from vccompiler.lexer.token import TokenEnum
 
 
 class Symbol:

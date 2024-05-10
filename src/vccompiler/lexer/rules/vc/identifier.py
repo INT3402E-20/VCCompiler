@@ -1,5 +1,5 @@
 from vccompiler.dfa import State
-from vccompiler.lexer.token_types import *
+from vccompiler.lexer.token import *
 from vccompiler.lexer.charset import *
 
 
