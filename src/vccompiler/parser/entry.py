@@ -42,3 +42,5 @@ def main():
 
     # retrieve default grammar
     grammar = grammars.vc
+    grammar.build()
+    grammar.parse(tokens)
