@@ -169,7 +169,7 @@ class LL1Grammar:
                 assert rule.alpha == sym
                 for beta in reversed(rule.betas):
                     stack.append(beta)
-                logger.info(f"{rule.alpha} -> {rule.betas}")
+                logger.info(f"{rule.alpha} -> {' '.join(str(beta) for beta in rule.betas)}")
 
         if len(stack) > 0:
             raise LL1ParserError(tokens[ptr], "EOF reached")
