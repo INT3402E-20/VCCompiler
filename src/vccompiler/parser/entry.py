@@ -7,6 +7,7 @@ from vccompiler.exceptions import SourceError
 from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
+from vccompiler.ll1.production import source_format
 from vccompiler.parser import grammars
 
 
@@ -51,6 +52,8 @@ def main():
     grammar = grammars.vc
     grammar.build()
     try:
-        grammar.parse(tokens)
+        transforms = grammar.parse(tokens)
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
+
+    print(source_format(grammar.start, transforms), file=args.output)

@@ -2,6 +2,7 @@ import logging
 from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
 from vccompiler.lexer.token import Token, TokenEnum
+from vccompiler.ll1.production import Rule
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -15,12 +16,6 @@ class LL1ParserError(VCException):
 
     def __str__(self):
         return self.what
-
-
-class Rule:
-    def __init__(self, alpha, betas):
-        self.alpha = alpha
-        self.betas = betas
 
 
 class LL1Grammar:
@@ -52,10 +47,10 @@ class LL1Grammar:
             self.terminals.add(sym)
         return sym
 
-    def add_rule(self, alpha, *betas):
+    def add_rule(self, alpha, *betas, **kwargs):
         alpha = self.add_symbol(alpha)
         betas = [self.add_symbol(beta) for beta in betas]
-        rule = Rule(alpha, betas)
+        rule = Rule(alpha, betas, **kwargs)
         self.production_rules.append(rule)
 
     def get_first(self, *syms):
@@ -92,8 +87,8 @@ class LL1Grammar:
 
             for rule in self.production_rules:
                 # first(A) -> first(X) for X -> A
-                for sym in self.get_first(*rule.betas):
-                    update(rule.alpha, sym)
+                for sym in self.get_first(*rule.rhs):
+                    update(rule.lhs, sym)
 
     def build_follow(self):
         self.follow_table = {}
@@ -111,16 +106,16 @@ class LL1Grammar:
                     stopped = False
 
             for rule in self.production_rules:
-                for i, beta in enumerate(rule.betas):
+                for i, beta in enumerate(rule.rhs):
                     if beta in self.non_terminals:
-                        first_set = self.get_first(*rule.betas[i+1:])
+                        first_set = self.get_first(*rule.rhs[i + 1:])
                         # follow(b) - {eps} -> follow(X) for each A -> aXb
                         for sym in first_set:
                             if sym is not Symbol.eps:
                                 update(beta, sym)
                         # follow(A) -> follow(X) for each A -> aXb where eps in first(b)
                         if Symbol.eps in first_set:
-                            for sym in self.follow_table[rule.alpha]:
+                            for sym in self.follow_table[rule.lhs]:
                                 update(beta, sym)
 
     def build_ll1(self):
@@ -131,13 +126,13 @@ class LL1Grammar:
             self.parsing_table[(alpha, sym)] = entry
 
         for rule in self.production_rules:
-            first_set = self.get_first(*rule.betas)
+            first_set = self.get_first(*rule.rhs)
             for sym in first_set:
                 if sym in self.terminals:
-                    update(rule.alpha, sym, rule)
+                    update(rule.lhs, sym, rule)
             if Symbol.eps in first_set:
-                for sym in self.follow_table[rule.alpha]:
-                    update(rule.alpha, sym, Symbol.eps)
+                for sym in self.follow_table[rule.lhs]:
+                    update(rule.lhs, sym, Symbol.eps)
 
     def build(self):
         self.build_first()
@@ -147,6 +142,7 @@ class LL1Grammar:
     def parse(self, tokens):
         tokens.append(Token(EOF, TokenEnum.EOF))
         stack = [self.start]
+        transforms = []
 
         ptr = 0
         while len(stack) > 0 and ptr < len(tokens):
@@ -156,6 +152,7 @@ class LL1Grammar:
                 token = tokens[ptr]
                 if sym.fit(token):
                     ptr += 1
+                    transforms.append((sym, token))
                     logger.info(f"{sym} -> \"{token}\"")
                 else:
                     raise LL1ParserError(token, f"expected {sym}, found \"{token}\"")
@@ -175,13 +172,16 @@ class LL1Grammar:
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
                     # skip the symbol if it's empty string
+                    transforms.append((sym, Symbol.eps))
                     logger.info(f"{sym} -> ε")
                     continue
-                assert rule.alpha == sym
+                assert rule.lhs == sym
                 # push the production rule to the stack in reversed order
-                for beta in reversed(rule.betas):
+                for beta in reversed(rule.rhs):
                     stack.append(beta)
-                logger.info(f"{sym} -> {' '.join(str(beta) for beta in rule.betas)}")
+
+                transforms.append((sym, rule))
+                logger.info(f"{sym} -> {' '.join(str(beta) for beta in rule.rhs)}")
 
         # this part is unreachable by design since the input was terminated with EOF token
         # we put these checks here just in case
@@ -189,3 +189,5 @@ class LL1Grammar:
             raise LL1ParserError(tokens[ptr], "EOF reached")
         if ptr < len(tokens):
             raise LL1ParserError(tokens[ptr], f"expected EOF, found \"{tokens[ptr]}\"")
+
+        return transforms
