@@ -175,12 +175,13 @@ class LL1Grammar:
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
                     # skip the symbol if it's empty string
+                    logger.info(f"{sym} -> ε")
                     continue
                 assert rule.alpha == sym
                 # push the production rule to the stack in reversed order
                 for beta in reversed(rule.betas):
                     stack.append(beta)
-                logger.info(f"{rule.alpha} -> {' '.join(str(beta) for beta in rule.betas)}")
+                logger.info(f"{sym} -> {' '.join(str(beta) for beta in rule.betas)}")
 
         # this part is unreachable by design since the input was terminated with EOF token
         # we put these checks here just in case
