@@ -31,6 +31,8 @@ class LL1Grammar:
         self.parsing_table = None
         self.terminals = set()
         self.non_terminals = set()
+        self.literal_symbols = {}
+        self.token_enum_symbols = {}
 
         self.start = Symbol("grammar-start")
         eof = Symbol("EOF", EOF)
@@ -43,7 +45,10 @@ class LL1Grammar:
             else:
                 self.non_terminals.add(sym)
         if isinstance(sym, str):
-            sym = Symbol(sym, sym)
+            sym = self.literal_symbols.get(sym, Symbol(sym, sym))
+            self.terminals.add(sym)
+        if isinstance(sym, TokenEnum):
+            sym = self.token_enum_symbols.get(sym, Symbol(sym.value, sym))
             self.terminals.add(sym)
         return sym
 
@@ -58,10 +63,12 @@ class LL1Grammar:
         nullable = True
         for sym in syms:
             if nullable:
+                # append first(Ai) - {eps} if eps in first(Aj) for all j < i
                 first_set |= self.first_table[sym]
             nullable = nullable and Symbol.eps in self.first_table[sym]
         first_set.discard(Symbol.eps)
         if nullable:
+            # append eps if eps in first(Ai) for all i
             first_set.add(Symbol.eps)
         return first_set
 
@@ -84,9 +91,7 @@ class LL1Grammar:
                     stopped = False
 
             for rule in self.production_rules:
-                if all(Symbol.eps in self.first_table[beta] for beta in rule.betas):
-                    update(rule.alpha, Symbol.eps)
-
+                # first(A) -> first(X) for X -> A
                 for sym in self.get_first(*rule.betas):
                     update(rule.alpha, sym)
 
@@ -109,9 +114,11 @@ class LL1Grammar:
                 for i, beta in enumerate(rule.betas):
                     if beta in self.non_terminals:
                         first_set = self.get_first(*rule.betas[i+1:])
+                        # follow(b) - {eps} -> follow(X) for each A -> aXb
                         for sym in first_set:
                             if sym is not Symbol.eps:
                                 update(beta, sym)
+                        # follow(A) -> follow(X) for each A -> aXb where eps in first(b)
                         if Symbol.eps in first_set:
                             for sym in self.follow_table[rule.alpha]:
                                 update(beta, sym)
@@ -145,6 +152,7 @@ class LL1Grammar:
         while len(stack) > 0 and ptr < len(tokens):
             sym = stack.pop()
             if sym in self.terminals:
+                # the token must match the terminal symbol
                 token = tokens[ptr]
                 if sym.fit(token):
                     ptr += 1
@@ -152,25 +160,30 @@ class LL1Grammar:
                 else:
                     raise LL1ParserError(token, f"expected {sym}, found \"{token}\"")
             elif sym in self.non_terminals:
-                term = None
                 token = tokens[ptr]
-                for terminal in self.terminals:
-                    if terminal.fit(token):
-                        term = terminal
-                if term is None:
+                # find the terminal symbol that match the token
+                matches = [term for term in self.terminals if term.fit(token)]
+                if len(matches) == 0:
                     raise LL1ParserError(token, f"unknown token \"{token}\"")
+                if len(matches) > 1:
+                    raise LL1ParserError(token, f"ambiguous token \"{token}\"")
+                term = matches.pop()
 
                 if (sym, term) not in self.parsing_table:
                     raise LL1ParserError(token, f"invalid token \"{token}\"")
 
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
+                    # skip the symbol if it's empty string
                     continue
                 assert rule.alpha == sym
+                # push the production rule to the stack in reversed order
                 for beta in reversed(rule.betas):
                     stack.append(beta)
                 logger.info(f"{rule.alpha} -> {' '.join(str(beta) for beta in rule.betas)}")
 
+        # this part is unreachable by design since the input was terminated with EOF token
+        # we put these checks here just in case
         if len(stack) > 0:
             raise LL1ParserError(tokens[ptr], "EOF reached")
         if ptr < len(tokens):
