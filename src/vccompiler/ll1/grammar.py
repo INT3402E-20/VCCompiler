@@ -153,7 +153,10 @@ class LL1Grammar:
                 if sym.fit(token):
                     ptr += 1
                     transforms.append((sym, token))
-                    logger.info(f"{sym} -> \"{token}\"")
+                    if token.kind != TokenEnum.EOF:
+                        logger.info(f"{sym} -> \"{token}\"")
+                    else:
+                        logger.info(f"{sym} -> $")
                 else:
                     raise LL1ParserError(token, f"expected {sym}, found \"{token}\"")
             elif sym in self.non_terminals:
