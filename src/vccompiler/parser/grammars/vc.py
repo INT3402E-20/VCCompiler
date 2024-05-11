@@ -11,10 +11,10 @@ declarator = Symbol("declarator", TokenEnum.IDENTIFIER)
 
 grammar = LL1Grammar(program)
 # grammar.add_rule(program, func_decl, program)
-grammar.add_rule(program, var_decl, program, indentation=[FormatEnum.NL])
+grammar.add_rule(program, var_decl, FormatEnum.NL, program)
 grammar.add_rule(program, Symbol.eps)
 
-grammar.add_rule(var_decl, var_type, declarator, ";", indentation=[FormatEnum.SPACE, FormatEnum.NONE])
+grammar.add_rule(var_decl, var_type, FormatEnum.SPACE, declarator, ";")
 grammar.add_rule(var_type, "void")
 grammar.add_rule(var_type, "boolean")
 grammar.add_rule(var_type, "int")

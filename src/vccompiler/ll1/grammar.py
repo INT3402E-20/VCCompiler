@@ -39,18 +39,18 @@ class LL1Grammar:
                 self.terminals.add(sym)
             else:
                 self.non_terminals.add(sym)
-        if isinstance(sym, str):
+        elif isinstance(sym, str):
             sym = self.literal_symbols.get(sym, Symbol(sym, sym))
             self.terminals.add(sym)
-        if isinstance(sym, TokenEnum):
+        elif isinstance(sym, TokenEnum):
             sym = self.token_enum_symbols.get(sym, Symbol(sym.value, sym))
             self.terminals.add(sym)
         return sym
 
-    def add_rule(self, alpha, *betas, **kwargs):
+    def add_rule(self, alpha, *betas):
         alpha = self.add_symbol(alpha)
         betas = [self.add_symbol(beta) for beta in betas]
-        rule = Rule(alpha, betas, **kwargs)
+        rule = Rule(alpha, betas)
         self.production_rules.append(rule)
 
     def get_first(self, *syms):
@@ -177,8 +177,7 @@ class LL1Grammar:
                     continue
                 assert rule.lhs == sym
                 # push the production rule to the stack in reversed order
-                for beta in reversed(rule.rhs):
-                    stack.append(beta)
+                stack.extend(reversed(rule.rhs))
 
                 transforms.append((sym, rule))
                 logger.info(f"{sym} -> {' '.join(str(beta) for beta in rule.rhs)}")

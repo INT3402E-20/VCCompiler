@@ -22,13 +22,13 @@ class LL1FormatterError(VCException):
 
 
 class Rule:
-    def __init__(self, alpha, betas, indentation=None):
+    def __init__(self, alpha, betas):
         self.lhs = alpha
-        self.rhs = betas
-        self.indentation = indentation
+        self.rhs_with_formatting = betas
 
-        if self.indentation is not None:
-            assert len(self.rhs) == len(self.indentation) + 1
+    @property
+    def rhs(self):
+        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, FormatEnum)]
 
 
 def source_format(start, transforms):
@@ -75,11 +75,5 @@ def source_format(start, transforms):
                 rule = transform[1]
                 assert sym == rule.lhs
 
-                for i in range(len(rule.rhs) - 1, -1, -1):
-                    if i + 1 < len(rule.rhs):
-                        if rule.indentation is not None:
-                            stack.append(rule.indentation[i])
-                        else:
-                            stack.append(FormatEnum.SPACE)
-                    stack.append(rule.rhs[i])
+                stack.extend(reversed(rule.rhs_with_formatting))
     return source

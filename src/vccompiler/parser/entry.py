@@ -56,4 +56,4 @@ def main():
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
 
-    print(source_format(grammar.start, transforms), file=args.output)
+    args.output.write(source_format(grammar.start, transforms))
