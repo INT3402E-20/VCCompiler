@@ -5,20 +5,20 @@ from vccompiler.lexer.token import Token, TokenEnum
 from vccompiler.ll1.symbol import Symbol
 
 
-class FormatEnum(Enum):
-    NL = 0
-    NL_SL = 1
-    NL_SR = 2
-    SPACE = 3
-    NONE = 4
+class Format:
+    def __init__(self, sep=" "):
+        self.sep = sep
 
+    def execute(self, level):
+        TAB = "\t"
+        NL = "\n"
 
-class LL1FormatterError(VCException):
-    def __init__(self, what):
-        self.what = what
-
-    def __str__(self):
-        return self.what
+        if isinstance(self.sep, int):
+            new_indent = level + self.sep
+            assert new_indent >= 0
+            return new_indent, NL + TAB * new_indent
+        if isinstance(self.sep, str):
+            return level, self.sep
 
 
 class Rule:
@@ -28,14 +28,11 @@ class Rule:
 
     @property
     def rhs(self):
-        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, FormatEnum)]
+        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, Format)]
 
 
 def source_format(start, transforms):
     source = ""
-    TAB = "\t"
-    NL = "\n"
-    SPACE = " "
 
     stack = [start]
     ptr = 0
@@ -43,22 +40,9 @@ def source_format(start, transforms):
 
     while len(stack) > 0:
         sym = stack.pop()
-        if isinstance(sym, FormatEnum):
-            if sym == FormatEnum.NL:
-                source += NL
-                source += TAB * indent
-            elif sym == FormatEnum.NL_SL:
-                if indent <= 0:
-                    raise LL1FormatterError("negative indentation")
-                indent -= 1
-                source += NL
-                source += TAB * indent
-            elif sym == FormatEnum.NL_SR:
-                indent += 1
-                source += NL
-                source += TAB * indent
-            elif sym == FormatEnum.SPACE:
-                source += SPACE
+        if isinstance(sym, Format):
+            indent, sep = sym.execute(indent)
+            source += sep
         elif isinstance(sym, Symbol):
             assert ptr < len(transforms)
             transform = transforms[ptr]
