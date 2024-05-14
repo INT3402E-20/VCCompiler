@@ -4,19 +4,23 @@ from vccompiler.ll1.symbol import Symbol
 
 
 class Format:
-    def __init__(self, sep=" "):
-        self.sep = sep
+    def __init__(self, *separators):
+        self.separators = separators
 
     def execute(self, level):
         TAB = "\t"
         NL = "\n"
 
-        if isinstance(self.sep, int):
-            new_indent = level + self.sep
-            assert new_indent >= 0
-            return new_indent, NL + TAB * new_indent
-        if isinstance(self.sep, str):
-            return level, self.sep
+        output = ""
+
+        for sep in self.separators:
+            if isinstance(sep, int):
+                level += sep
+                assert level >= 0
+                output += NL + TAB * level
+            if isinstance(sep, str):
+                output += sep
+        return level, output
 
 
 def source_format(start, transforms):
