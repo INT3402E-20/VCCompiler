@@ -1,6 +1,5 @@
 from vccompiler.lexer.token import TokenEnum
-from vccompiler.ll1 import LL1Grammar, Symbol
-from vccompiler.ll1.production import Format
+from vccompiler.ll1 import Format, LL1Grammar, Symbol
 
 
 program = Symbol("program")   # start symbol

@@ -2,7 +2,6 @@ import logging
 from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
 from vccompiler.lexer.token import Token, TokenEnum
-from vccompiler.ll1.production import Rule
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -16,6 +15,17 @@ class LL1ParserError(VCException):
 
     def __str__(self):
         return self.what
+
+
+class Rule:
+    def __init__(self, alpha, betas):
+        self.lhs = alpha
+        self.rhs_with_formatting = betas
+
+    @property
+    def rhs(self):
+        from vccompiler.ll1.format import Format
+        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, Format)]
 
 
 class LL1Grammar:
@@ -153,24 +163,21 @@ class LL1Grammar:
                 if sym.fit(token):
                     ptr += 1
                     transforms.append((sym, token))
-                    if token.kind != TokenEnum.EOF:
-                        logger.info(f"{sym} -> \"{token}\"")
-                    else:
-                        logger.info(f"{sym} -> $")
+                    logger.info(f"{sym} -> {token}")
                 else:
-                    raise LL1ParserError(token, f"expected {sym}, found \"{token}\"")
+                    raise LL1ParserError(token, f"expected {sym}, found {token}")
             elif sym in self.non_terminals:
                 token = tokens[ptr]
                 # find the terminal symbol that match the token
                 matches = [term for term in self.terminals if term.fit(token)]
                 if len(matches) == 0:
-                    raise LL1ParserError(token, f"unknown token \"{token}\"")
+                    raise LL1ParserError(token, f"unknown token {token}")
                 if len(matches) > 1:
-                    raise LL1ParserError(token, f"ambiguous token \"{token}\"")
+                    raise LL1ParserError(token, f"ambiguous token {token}")
                 term = matches.pop()
 
                 if (sym, term) not in self.parsing_table:
-                    raise LL1ParserError(token, f"invalid token \"{token}\"")
+                    raise LL1ParserError(token, f"invalid token {token}")
 
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
@@ -190,6 +197,6 @@ class LL1Grammar:
         if len(stack) > 0:
             raise LL1ParserError(tokens[ptr], "EOF reached")
         if ptr < len(tokens):
-            raise LL1ParserError(tokens[ptr], f"expected EOF, found \"{tokens[ptr]}\"")
+            raise LL1ParserError(tokens[ptr], f"expected EOF, found {tokens[ptr]}")
 
         return transforms

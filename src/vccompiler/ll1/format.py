@@ -1,7 +1,5 @@
-from enum import Enum
-
-from vccompiler.exceptions import VCException
 from vccompiler.lexer.token import Token, TokenEnum
+from vccompiler.ll1.grammar import Rule
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -19,16 +17,6 @@ class Format:
             return new_indent, NL + TAB * new_indent
         if isinstance(self.sep, str):
             return level, self.sep
-
-
-class Rule:
-    def __init__(self, alpha, betas):
-        self.lhs = alpha
-        self.rhs_with_formatting = betas
-
-    @property
-    def rhs(self):
-        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, Format)]
 
 
 def source_format(start, transforms):

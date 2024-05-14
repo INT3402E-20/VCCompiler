@@ -19,10 +19,12 @@ class Token:
         self.start_pos = start_pos
 
     def __str__(self):
-        return self.value
+        if self.kind == TokenEnum.EOF:
+            return "$"
+        return f"\"{self.value}\""
 
     def __repr__(self):
-        return f"Token(\"{self.value}\", {self.kind.value}, {self.start_pos})"
+        return f"Token({self}, {self.kind.value}, {self.start_pos})"
 
 
 globals().update(TokenEnum.__members__)

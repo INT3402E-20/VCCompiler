@@ -7,7 +7,7 @@ from vccompiler.exceptions import SourceError
 from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
-from vccompiler.ll1.production import source_format
+from vccompiler.ll1.format import source_format
 from vccompiler.parser import grammars
 
 
