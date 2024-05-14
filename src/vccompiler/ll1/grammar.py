@@ -53,10 +53,14 @@ class LL1Grammar:
             else:
                 self.non_terminals.add(sym)
         elif isinstance(sym, str):
-            sym = self.literal_symbols.get(sym, Symbol(sym, sym))
+            literal = sym
+            sym = self.literal_symbols.get(literal, Symbol(sym, sym))
+            self.literal_symbols[literal] = sym
             self.terminals.add(sym)
         elif isinstance(sym, TokenEnum):
+            token = sym
             sym = self.token_enum_symbols.get(sym, Symbol(sym.value, sym))
+            self.token_enum_symbols[token] = sym
             self.terminals.add(sym)
         return sym
 

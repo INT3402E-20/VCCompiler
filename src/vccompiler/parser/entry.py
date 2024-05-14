@@ -8,7 +8,6 @@ from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
 from vccompiler.ll1.format import source_format
-from vccompiler.parser import grammars
 
 
 logger = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ def main():
     tokens = [token for token in tokens if token.kind != TokenEnum.WHITESPACE and token.kind != TokenEnum.COMMENT]
 
     # retrieve default grammar
-    grammar = grammars.vc
+    from vccompiler.parser.grammars import vc as grammar
     grammar.build()
     try:
         transforms = grammar.parse(tokens)
