@@ -17,6 +17,10 @@ class LL1ParserError(VCException):
         return self.what
 
 
+class LL1GrammarError(VCException):
+    pass
+
+
 class Rule:
     def __init__(self, alpha, betas):
         self.lhs = alpha
@@ -32,7 +36,7 @@ class Rule:
 
 
 class LL1Grammar:
-    def __init__(self, start):
+    def __init__(self, start, conflict_handler=None):
         self.production_rules = []
         self.first_table = None
         self.follow_table = None
@@ -41,6 +45,7 @@ class LL1Grammar:
         self.non_terminals = set()
         self.literal_symbols = {}
         self.token_enum_symbols = {}
+        self.conflict_handler = conflict_handler
 
         self.start = Symbol("grammar-start")
         eof = Symbol("EOF", EOF)
@@ -142,8 +147,15 @@ class LL1Grammar:
 
         def update(alpha, sym, entry):
             logger.debug(f"LL1 table updates ({alpha}, {sym}) = {entry}")
-            assert (alpha, sym) not in self.parsing_table
-            self.parsing_table[(alpha, sym)] = entry
+            try:
+                # workaround for dangling else
+                old_entry = self.parsing_table[(alpha, sym)]
+                if self.conflict_handler is not None:
+                    self.parsing_table[(alpha, sym)] = self.conflict_handler(alpha, sym, old_entry, entry)
+                else:
+                    raise LL1GrammarError(f"table conflict at ({alpha}, {sym})")
+            except KeyError:
+                self.parsing_table[(alpha, sym)] = entry
 
         for rule in self.production_rules:
             first_set = self.get_first(*rule.rhs)

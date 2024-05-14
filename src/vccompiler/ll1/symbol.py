@@ -2,6 +2,8 @@ from vccompiler.lexer.token import Token, TokenEnum
 
 
 class Symbol:
+    eps = None
+
     def __init__(self, name, hook=None):
         self.name = name
         self.hook = hook
