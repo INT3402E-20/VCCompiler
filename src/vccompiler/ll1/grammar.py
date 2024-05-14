@@ -27,6 +27,9 @@ class Rule:
         from vccompiler.ll1.format import Format
         return [beta for beta in self.rhs_with_formatting if not isinstance(beta, Format)]
 
+    def __str__(self):
+        return f"{self.lhs} -> {' '.join(str(beta) for beta in self.rhs)}"
+
 
 class LL1Grammar:
     def __init__(self, start):
@@ -92,6 +95,7 @@ class LL1Grammar:
             def update(alpha, sym):
                 nonlocal stopped
                 if sym not in self.first_table[alpha]:
+                    logger.debug(f"LL1 First updates {alpha}, {sym}")
                     self.first_table[alpha].add(sym)
                     stopped = False
 
@@ -112,6 +116,7 @@ class LL1Grammar:
             def update(alpha, sym):
                 nonlocal stopped
                 if sym not in self.follow_table[alpha]:
+                    logger.debug(f"LL1 Follow updates {alpha}, {sym}")
                     self.follow_table[alpha].add(sym)
                     stopped = False
 
@@ -132,6 +137,7 @@ class LL1Grammar:
         self.parsing_table = dict()
 
         def update(alpha, sym, entry):
+            logger.debug(f"LL1 table updates ({alpha}, {sym}) = {entry}")
             assert (alpha, sym) not in self.parsing_table
             self.parsing_table[(alpha, sym)] = entry
 
@@ -190,7 +196,7 @@ class LL1Grammar:
                 stack.extend(reversed(rule.rhs))
 
                 transforms.append((sym, rule))
-                logger.info(f"{sym} -> {' '.join(str(beta) for beta in rule.rhs)}")
+                logger.info(rule)
 
         # this part is unreachable by design since the input was terminated with EOF token
         # we put these checks here just in case

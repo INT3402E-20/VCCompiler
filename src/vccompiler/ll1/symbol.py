@@ -2,8 +2,6 @@ from vccompiler.lexer.token import Token, TokenEnum
 
 
 class Symbol:
-    eps = object()
-
     def __init__(self, name, hook=None):
         self.name = name
         self.hook = hook
@@ -24,3 +22,18 @@ class Symbol:
             return token.value == self.hook
 
         assert False
+
+
+class EpsSymbol(Symbol):
+    def __str__(self):
+        return "ε"
+
+    @property
+    def is_terminal(self):
+        return False
+
+    def fit(self, token: Token):
+        raise NotImplementedError
+
+
+Symbol.eps = EpsSymbol("EPS")
