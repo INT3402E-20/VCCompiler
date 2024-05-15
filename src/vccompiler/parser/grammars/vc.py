@@ -1,20 +1,24 @@
 from vccompiler.lexer.token import TokenEnum
-from vccompiler.ll1 import Format, LL1Grammar, Symbol
+from vccompiler.ll1 import Format as F, LL1Grammar as L, Symbol as S
 
 
-program = Symbol("program")   # start symbol
-func_decl = Symbol("func-decl")
-var_decl = Symbol("var-decl")
-var_type = Symbol("type")
-declarator = Symbol("declarator", TokenEnum.IDENTIFIER)
+program = S("program")   # start symbol
+func_decl = S("func-decl")
+var_decl = S("var-decl")
+var_type = S("type")
+declarator = S("declarator", TokenEnum.IDENTIFIER)
 
-grammar = LL1Grammar(program)
-# grammar.add_rule(program, func_decl, program)
-grammar.add_rule(program, Format("{"), Format(1), var_decl, Format(-1), Format("}"), program)
-grammar.add_rule(program, Symbol.eps)
+rules = [
+    (program, func_decl, program),
+    (program, F("{", 1), var_decl, F(-1, "}"), program),
+    (program, S.eps),
+    (var_decl, var_type, F(" "), declarator, ";"),
+    (var_type, "void"),
+    (var_type, "boolean"),
+    (var_type, "int"),
+    (var_type, "float"),
+]
 
-grammar.add_rule(var_decl, var_type, Format(" "), declarator, ";")
-grammar.add_rule(var_type, "void")
-grammar.add_rule(var_type, "boolean")
-grammar.add_rule(var_type, "int")
-grammar.add_rule(var_type, "float")
+grammar = L(program)
+for rule in rules:
+    grammar.add_rule(*rule)
