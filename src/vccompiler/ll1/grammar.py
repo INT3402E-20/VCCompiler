@@ -146,16 +146,17 @@ class LL1Grammar:
         self.parsing_table = dict()
 
         def update(alpha, sym, entry):
-            logger.debug(f"LL1 table updates ({alpha}, {sym}) = {entry}")
             try:
                 # workaround for dangling else
                 old_entry = self.parsing_table[(alpha, sym)]
                 if self.conflict_handler is not None:
                     self.parsing_table[(alpha, sym)] = self.conflict_handler(alpha, sym, old_entry, entry)
+                    logger.warning(f"conflict handled at ({alpha}, {sym})")
                 else:
                     raise LL1GrammarError(f"table conflict at ({alpha}, {sym})")
             except KeyError:
                 self.parsing_table[(alpha, sym)] = entry
+            logger.debug(f"LL1 table updates ({alpha}, {sym}) = {entry}")
 
         for rule in self.production_rules:
             first_set = self.get_first(*rule.rhs)
