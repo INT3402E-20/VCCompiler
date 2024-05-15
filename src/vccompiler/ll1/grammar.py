@@ -133,7 +133,7 @@ class LL1Grammar:
                 for i, beta in enumerate(rule.rhs):
                     if beta in self.non_terminals:
                         first_set = self.get_first(*rule.rhs[i + 1:])
-                        # follow(b) - {eps} -> follow(X) for each A -> aXb
+                        # first(b) - {eps} -> follow(X) for each A -> aXb
                         for sym in first_set:
                             if sym is not Symbol.eps:
                                 update(beta, sym)
