@@ -4,13 +4,13 @@ from vccompiler.lexer.charset import *
 
 
 state0 = State(0)
-state1 = EndState(1, LITERAL)
-state2 = EndState(2, LITERAL)
+state1 = EndState(1, INTLITERAL)
+state2 = EndState(2, FLOATLITERAL)
 state3 = State(3)
 state4 = State(4)
-state5 = EndState(5, LITERAL)
+state5 = EndState(5, FLOATLITERAL)
 state6 = State(6)
-state7 = EndState(7, LITERAL)
+state7 = EndState(7, FLOATLITERAL)
 
 
 state0.add(alias.digit, state1)
