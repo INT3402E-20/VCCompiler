@@ -3,6 +3,7 @@ from vccompiler.ll1 import Format as F, LL1Grammar as L, Symbol as S
 
 
 program = S("program")   # start symbol
+
 declare_type = S("declare-type")
 vc_type = S("type", TokenEnum.TYPE_INIT)
 identifier = S("identifier", TokenEnum.IDENTIFIER)
@@ -118,4 +119,3 @@ for rule in compound_stmt_rules:
     grammar.add_rule(*rule)
 for rule in other_stmt_rules:
     grammar.add_rule(*rule)
-    

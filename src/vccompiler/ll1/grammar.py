@@ -152,6 +152,7 @@ class LL1Grammar:
                 old_entry = self.parsing_table[(alpha, sym)]
                 if self.conflict_handler is not None:
                     self.parsing_table[(alpha, sym)] = self.conflict_handler(alpha, sym, old_entry, entry)
+                    logger.warning(f"conflict handled at ({alpha}, {sym}) = {self.parsing_table[(alpha, sym)]}")
                 else:
                     raise LL1GrammarError(f"table conflict at ({alpha}, {sym})")
             except KeyError:
