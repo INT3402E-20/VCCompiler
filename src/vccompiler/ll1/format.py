@@ -1,5 +1,5 @@
 from vccompiler.lexer.token import Token, TokenEnum
-from vccompiler.ll1.grammar import Rule
+from vccompiler.ll1.grammar import CSTNode
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -23,33 +23,21 @@ class Format:
         return level, output
 
 
-def source_format(start, transforms):
+def source_format(root: CSTNode, indent=0):
+    if isinstance(root.rule, Token):
+        token = root.rule
+        return "" if token.kind == TokenEnum.EOF else token.value
+    if isinstance(root.rule, str):
+        return root.rule
+
     source = ""
+    child_index = 0
 
-    stack = [start]
-    ptr = 0
-    indent = 0
-
-    while len(stack) > 0:
-        sym = stack.pop()
+    for sym in root.rule.rhs_with_formatting:
         if isinstance(sym, Format):
             indent, sep = sym.execute(indent)
             source += sep
         elif isinstance(sym, Symbol):
-            assert ptr < len(transforms)
-            transform = transforms[ptr]
-            ptr += 1
-
-            assert transform[0] == sym
-
-            if isinstance(transform[1], Token):
-                if transform[1].kind != TokenEnum.EOF:
-                    source += transform[1].value
-            elif isinstance(transform[1], Symbol):
-                assert transform[1] is Symbol.eps
-            elif isinstance(transform[1], Rule):
-                rule = transform[1]
-                assert sym == rule.lhs
-
-                stack.extend(reversed(rule.rhs_with_formatting))
+            source += source_format(root.children[child_index], indent)
+            child_index += 1
     return source

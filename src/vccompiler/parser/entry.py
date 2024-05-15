@@ -51,8 +51,8 @@ def main():
     from vccompiler.parser.grammars import vc as grammar
     grammar.build()
     try:
-        transforms = grammar.parse(tokens)
+        cst = grammar.parse(tokens)
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
 
-    args.output.write(source_format(grammar.start, transforms))
+    args.output.write(source_format(cst))

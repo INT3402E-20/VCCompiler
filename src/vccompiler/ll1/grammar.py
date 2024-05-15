@@ -22,9 +22,10 @@ class LL1GrammarError(VCException):
 
 
 class Rule:
-    def __init__(self, alpha, betas):
+    def __init__(self, alpha, betas, **semantics):
         self.lhs = alpha
         self.rhs_with_formatting = betas
+        self.semantics = semantics
 
     @property
     def rhs(self):
@@ -33,6 +34,12 @@ class Rule:
 
     def __str__(self):
         return f"{self.lhs} -> {' '.join(str(beta) for beta in self.rhs)}"
+
+
+class CSTNode:
+    def __init__(self, rule=None):
+        self.rule = rule
+        self.children = []
 
 
 class LL1Grammar:
@@ -174,18 +181,18 @@ class LL1Grammar:
 
     def parse(self, tokens):
         tokens.append(Token(EOF, TokenEnum.EOF))
-        stack = [self.start]
-        transforms = []
+        root = CSTNode()
+        stack = [(self.start, root)]
 
         ptr = 0
         while len(stack) > 0 and ptr < len(tokens):
-            sym = stack.pop()
+            sym, node = stack.pop()
             if sym in self.terminals:
                 # the token must match the terminal symbol
                 token = tokens[ptr]
                 if sym.fit(token):
                     ptr += 1
-                    transforms.append((sym, token))
+                    node.rule = token
                     logger.info(f"{sym} -> {token}")
                 else:
                     raise LL1ParserError(token, f"expected {sym}, found {token}")
@@ -205,14 +212,17 @@ class LL1Grammar:
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
                     # skip the symbol if it's empty string
-                    transforms.append((sym, Symbol.eps))
+                    node.rule = ""
                     logger.info(f"{sym} -> ε")
                     continue
                 assert rule.lhs == sym
-                # push the production rule to the stack in reversed order
-                stack.extend(reversed(rule.rhs))
 
-                transforms.append((sym, rule))
+                node.children = [CSTNode() for _ in range(len(rule.rhs))]
+
+                # push the production rule to the stack in reversed order
+                stack.extend(reversed(list(zip(rule.rhs, node.children))))
+
+                node.rule = rule
                 logger.info(rule)
 
         # this part is unreachable by design since the input was terminated with EOF token
@@ -222,4 +232,4 @@ class LL1Grammar:
         if ptr < len(tokens):
             raise LL1ParserError(tokens[ptr], f"expected EOF, found {tokens[ptr]}")
 
-        return transforms
+        return root
