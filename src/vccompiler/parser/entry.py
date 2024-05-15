@@ -30,6 +30,12 @@ def main():
     parser.add_argument('input',
                         help='source file',
                         type=argparse.FileType('r'))
+    parser.add_argument('--tab',
+                        help='tab character',
+                        type=str)
+    parser.add_argument('--eol',
+                        help='end of line character',
+                        type=str)
 
     args = parser.parse_args()
 
@@ -55,4 +61,10 @@ def main():
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
 
-    args.output.write(source_format(cst))
+    format_kwargs = {}
+    if args.tab:
+        format_kwargs['TAB'] = args.tab
+    if args.eol:
+        format_kwargs['NL'] = args.eol
+
+    args.output.write(source_format(cst, **format_kwargs)[1])
