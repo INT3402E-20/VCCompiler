@@ -1,24 +1,34 @@
 from vccompiler.lexer.token import TokenEnum
-from vccompiler.ll1 import Format as F, LL1Grammar as L, Symbol as S
+from vccompiler.ll1 import LL1Grammar as L, Symbol as S, RuleGenerator
+
+R = RuleGenerator()
+
+
+def dangling_else_handler(alpha, sym, old_entry, entry):
+    if entry is not S.eps:
+        return entry
+    return old_entry
 
 
 program = S("program")   # start symbol
-func_decl = S("func-decl")
-var_decl = S("var-decl")
-var_type = S("type")
-declarator = S("declarator", TokenEnum.IDENTIFIER)
+if_stmt = S("if-stmt")
+stmt = S("stmt")
+else_stmt = S("else-stmt")
+expr_stmt = S("expr-stmt")
+expr = S("expr")
 
 rules = [
-    (program, func_decl, program),
-    (program, F("{", 1), var_decl, F(-1, "}"), program),
-    (program, S.eps),
-    (var_decl, var_type, F(" "), declarator, ";"),
-    (var_type, "void"),
-    (var_type, "boolean"),
-    (var_type, "int"),
-    (var_type, "float"),
+    R(program, stmt, program, formatter="{0}{=}{1}"),
+    R(program, S.eps),
+    R(if_stmt, "if", "(", ")", stmt, else_stmt, formatter="if (){=}{{{>}{3}{<}}}{4}"),
+    R(else_stmt, S.eps),
+    R(else_stmt, "else", stmt, formatter="{=}else{=}{{{>}{1}{<}}}"),
+    R(stmt, if_stmt),
+    R(stmt, expr_stmt),
+    R(expr_stmt, TokenEnum.IDENTIFIER, ";"),
+    R(expr_stmt, ";"),
 ]
 
-grammar = L(program)
+grammar = L(program, conflict_handler=dangling_else_handler)
 for rule in rules:
-    grammar.add_rule(*rule)
+    grammar.add_rule(rule)

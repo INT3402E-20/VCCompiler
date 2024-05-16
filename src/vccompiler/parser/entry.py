@@ -7,8 +7,7 @@ from vccompiler.exceptions import SourceError
 from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
-from vccompiler.ll1.format import source_format
-
+from vccompiler.ll1.format import CSTFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +60,10 @@ def main():
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
 
-    format_kwargs = {}
+    engine = CSTFormatter()
     if args.tab:
-        format_kwargs['TAB'] = args.tab
+        engine.tab = args.tab
     if args.eol:
-        format_kwargs['NL'] = args.eol
+        engine.eol = args.eol
 
-    args.output.write(source_format(cst, **format_kwargs)[1])
+    args.output.write(engine.format(cst))

@@ -1,41 +1,40 @@
+from string import Formatter
+
 from vccompiler.lexer.token import Token, TokenEnum
-from vccompiler.ll1.grammar import CSTNode
-from vccompiler.ll1.symbol import Symbol
 
 
-class Format:
-    def __init__(self, *separators):
-        self.separators = separators
+class CSTFormatter:
+    class NodeFormatter(Formatter):
+        def parse(self, format_string):
+            return zip(*list(zip(*super().parse(format_string)))[:2])
 
-    def execute(self, level, TAB="\t", NL="\n"):
-        output = ""
+    def __init__(self, indent=0, tab='\t', eol='\n'):
+        self.tab = tab
+        self.eol = eol
+        self.indent = indent
 
-        for sep in self.separators:
-            if isinstance(sep, int):
-                level += sep
-                assert level >= 0
-                output += NL + TAB * level
-            if isinstance(sep, str):
-                output += sep
-        return level, output
+    def format(self, root):
+        if isinstance(root.rule, Token):
+            token = root.rule
+            return "" if token.kind == TokenEnum.EOF else token.value
+        if isinstance(root.rule, str):
+            return root.rule
+        if "formatter" not in root.semantics:
+            return "".join(self.format(child) for child in root.children)
 
+        formatter = CSTFormatter.NodeFormatter()
+        format_spec = root.semantics["formatter"]
+        source = ""
 
-def source_format(root: CSTNode, indent=0, **kwargs):
-    if isinstance(root.rule, Token):
-        token = root.rule
-        return indent, ("" if token.kind == TokenEnum.EOF else token.value)
-    if isinstance(root.rule, str):
-        return indent, root.rule
+        indent_rule = {">": 1, "=": 0, "<": -1}
 
-    source = ""
-    child_index = 0
-
-    for sym in root.rule.rhs_with_formatting:
-        if isinstance(sym, Format):
-            indent, sep = sym.execute(indent, **kwargs)
+        for sep, fmt in formatter.parse(format_spec):
             source += sep
-        elif isinstance(sym, Symbol):
-            indent, src = source_format(root.children[child_index], indent, **kwargs)
-            source += src
-            child_index += 1
-    return indent, source
+            if fmt in indent_rule:
+                self.indent += indent_rule[fmt]
+                assert self.indent >= 0
+                source += self.eol + self.tab * self.indent
+            elif fmt is not None:
+                source += self.format(root.children[int(fmt)])
+
+        return source
