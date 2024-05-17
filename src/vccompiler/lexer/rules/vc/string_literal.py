@@ -5,7 +5,7 @@ from vccompiler.lexer.token import *
 state0 = State(0)
 state1 = State(1)
 state2 = State(2)
-state3 = EndState(3, LITERAL)
+state3 = EndState(3, STRINGLITERAL)
 
 state0.add("\"", state1)
 state1.default(state1)
