@@ -2,6 +2,7 @@ import logging
 from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
 from vccompiler.lexer.token import Token, TokenEnum
+from vccompiler.ll1.rule import CSTNode, Rule
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -21,58 +22,32 @@ class LL1GrammarError(VCException):
     pass
 
 
-class Rule:
-    def __init__(self, alpha, betas):
-        self.lhs = alpha
-        self.rhs_with_formatting = betas
-
-    @property
-    def rhs(self):
-        from vccompiler.ll1.format import Format
-        return [beta for beta in self.rhs_with_formatting if not isinstance(beta, Format)]
-
-    def __str__(self):
-        return f"{self.lhs} -> {' '.join(str(beta) for beta in self.rhs)}"
-
-
 class LL1Grammar:
-    def __init__(self, start, conflict_handler=None):
+    def __init__(self, start, conflict_handler=None, **semantics):
         self.production_rules = []
         self.first_table = None
         self.follow_table = None
         self.parsing_table = None
         self.terminals = set()
         self.non_terminals = set()
-        self.literal_symbols = {}
-        self.token_enum_symbols = {}
         self.conflict_handler = conflict_handler
+        self.semantics = semantics
 
         self.start = Symbol("grammar-start")
         eof = Symbol("EOF", EOF)
-        self.add_rule(self.start, start, eof)
+        self.add_rule(Rule(self.start, (start, eof)))
 
     def add_symbol(self, sym):
-        if isinstance(sym, Symbol):
-            if sym.is_terminal:
-                self.terminals.add(sym)
-            else:
-                self.non_terminals.add(sym)
-        elif isinstance(sym, str):
-            literal = sym
-            sym = self.literal_symbols.get(literal, Symbol(sym, sym))
-            self.literal_symbols[literal] = sym
+        assert isinstance(sym, Symbol)
+        if sym.is_terminal:
             self.terminals.add(sym)
-        elif isinstance(sym, TokenEnum):
-            token = sym
-            sym = self.token_enum_symbols.get(sym, Symbol(sym.value, sym))
-            self.token_enum_symbols[token] = sym
-            self.terminals.add(sym)
-        return sym
+        else:
+            self.non_terminals.add(sym)
 
-    def add_rule(self, alpha, *betas):
-        alpha = self.add_symbol(alpha)
-        betas = [self.add_symbol(beta) for beta in betas]
-        rule = Rule(alpha, betas)
+    def add_rule(self, rule: Rule):
+        self.add_symbol(rule.lhs)
+        for beta in rule.rhs:
+            self.add_symbol(beta)
         self.production_rules.append(rule)
 
     def get_first(self, *syms):
@@ -133,7 +108,7 @@ class LL1Grammar:
                 for i, beta in enumerate(rule.rhs):
                     if beta in self.non_terminals:
                         first_set = self.get_first(*rule.rhs[i + 1:])
-                        # follow(b) - {eps} -> follow(X) for each A -> aXb
+                        # first(b) - {eps} -> follow(X) for each A -> aXb
                         for sym in first_set:
                             if sym is not Symbol.eps:
                                 update(beta, sym)
@@ -174,18 +149,18 @@ class LL1Grammar:
 
     def parse(self, tokens):
         tokens.append(Token(EOF, TokenEnum.EOF))
-        stack = [self.start]
-        transforms = []
+        root = CSTNode()
+        stack = [(self.start, root)]
 
         ptr = 0
         while len(stack) > 0 and ptr < len(tokens):
-            sym = stack.pop()
+            sym, node = stack.pop()
             if sym in self.terminals:
                 # the token must match the terminal symbol
                 token = tokens[ptr]
                 if sym.fit(token):
                     ptr += 1
-                    transforms.append((sym, token))
+                    node.rule = token
                     logger.info(f"{sym} -> {token}")
                 else:
                     raise LL1ParserError(token, f"expected {sym}, found {token}")
@@ -205,14 +180,18 @@ class LL1Grammar:
                 rule = self.parsing_table[(sym, term)]
                 if rule is Symbol.eps:
                     # skip the symbol if it's empty string
-                    transforms.append((sym, Symbol.eps))
+                    node.rule = ""
                     logger.info(f"{sym} -> ε")
                     continue
                 assert rule.lhs == sym
-                # push the production rule to the stack in reversed order
-                stack.extend(reversed(rule.rhs))
 
-                transforms.append((sym, rule))
+                for _ in range(len(rule.rhs)):
+                    node.add_child(CSTNode())
+
+                # push the production rule to the stack in reversed order
+                stack.extend(reversed(list(zip(rule.rhs, node.children))))
+
+                node.rule = rule
                 logger.info(rule)
 
         # this part is unreachable by design since the input was terminated with EOF token
@@ -222,4 +201,4 @@ class LL1Grammar:
         if ptr < len(tokens):
             raise LL1ParserError(tokens[ptr], f"expected EOF, found {tokens[ptr]}")
 
-        return transforms
+        return root

@@ -1,55 +1,40 @@
+from string import Formatter
+
 from vccompiler.lexer.token import Token, TokenEnum
-from vccompiler.ll1.grammar import Rule
-from vccompiler.ll1.symbol import Symbol
 
 
-class Format:
-    def __init__(self, *separators):
-        self.separators = separators
+class CSTFormatter:
+    class NodeFormatter(Formatter):
+        def parse(self, format_string):
+            return zip(*list(zip(*super().parse(format_string)))[:2])
 
-    def execute(self, level):
-        TAB = "\t"
-        NL = "\n"
+    def __init__(self, indent=0, tab='\t', eol='\n'):
+        self.tab = tab
+        self.eol = eol
+        self.indent = indent
 
-        output = ""
+    def format(self, root):
+        if isinstance(root.rule, Token):
+            token = root.rule
+            return "" if token.kind == TokenEnum.EOF else token.value
+        if isinstance(root.rule, str):
+            return root.rule
+        if "formatter" not in root.semantics:
+            return "".join(self.format(child) for child in root.children)
 
-        for sep in self.separators:
-            if isinstance(sep, int):
-                level += sep
-                assert level >= 0
-                output += NL + TAB * level
-            if isinstance(sep, str):
-                output += sep
-        return level, output
+        formatter = CSTFormatter.NodeFormatter()
+        format_spec = root.semantics["formatter"]
+        source = ""
 
+        indent_rule = {">": 1, "=": 0, "<": -1}
 
-def source_format(start, transforms):
-    source = ""
-
-    stack = [start]
-    ptr = 0
-    indent = 0
-
-    while len(stack) > 0:
-        sym = stack.pop()
-        if isinstance(sym, Format):
-            indent, sep = sym.execute(indent)
+        for sep, fmt in formatter.parse(format_spec):
             source += sep
-        elif isinstance(sym, Symbol):
-            assert ptr < len(transforms)
-            transform = transforms[ptr]
-            ptr += 1
+            if fmt in indent_rule:
+                self.indent += indent_rule[fmt]
+                assert self.indent >= 0
+                source += self.eol + self.tab * self.indent
+            elif fmt is not None:
+                source += self.format(root.children[int(fmt)])
 
-            assert transform[0] == sym
-
-            if isinstance(transform[1], Token):
-                if transform[1].kind != TokenEnum.EOF:
-                    source += transform[1].value
-            elif isinstance(transform[1], Symbol):
-                assert transform[1] is Symbol.eps
-            elif isinstance(transform[1], Rule):
-                rule = transform[1]
-                assert sym == rule.lhs
-
-                stack.extend(reversed(rule.rhs_with_formatting))
-    return source
+        return source
