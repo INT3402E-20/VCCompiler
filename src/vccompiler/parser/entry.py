@@ -8,7 +8,6 @@ from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
 from vccompiler.ll1.format import CSTFormatter
-from vccompiler.ll1.semantic import left_to_right, cst_pruning
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +35,9 @@ def main():
     parser.add_argument('--eol',
                         help='end of line character',
                         type=str)
+    parser.add_argument('--draw',
+                        help='draw parse tree to dot file',
+                        type=argparse.FileType('w'))
 
     args = parser.parse_args()
 
@@ -62,11 +64,14 @@ def main():
         raise ParserError(source, e.token.start_pos, e.what)
 
     # resolve left associativity
-    if "left_to_right" in grammar.semantics:
-        left_to_right(cst, grammar.semantics["left_to_right"])
+    cst.left_to_right()
 
     # parse tree pruning
-    cst_pruning(cst)
+    cst.prune()
+
+    # draw parse tree
+    if args.draw:
+        cst.draw(args.draw.name)
 
     engine = CSTFormatter()
     if args.tab:
@@ -74,4 +79,4 @@ def main():
     if args.eol:
         engine.eol = args.eol
 
-    args.output.write(engine.format(cst))
+    args.output.write(cst.format(engine))

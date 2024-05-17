@@ -2,7 +2,8 @@ import logging
 from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
 from vccompiler.lexer.token import Token, TokenEnum
-from vccompiler.ll1.rule import CSTNode, Rule
+from vccompiler.ll1.cst import CST
+from vccompiler.ll1.rule import Rule
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -149,8 +150,8 @@ class LL1Grammar:
 
     def parse(self, tokens):
         tokens.append(Token(EOF, TokenEnum.EOF))
-        root = CSTNode()
-        stack = [(self.start, root)]
+        tree = CST(self.semantics)
+        stack = [(self.start, tree.root)]
 
         ptr = 0
         while len(stack) > 0 and ptr < len(tokens):
@@ -186,7 +187,7 @@ class LL1Grammar:
                 assert rule.lhs == sym
 
                 for _ in range(len(rule.rhs)):
-                    node.add_child(CSTNode())
+                    node.add_child(tree.new_node())
 
                 # push the production rule to the stack in reversed order
                 stack.extend(reversed(list(zip(rule.rhs, node.children))))
@@ -201,4 +202,4 @@ class LL1Grammar:
         if ptr < len(tokens):
             raise LL1ParserError(tokens[ptr], f"expected EOF, found {tokens[ptr]}")
 
-        return root
+        return tree

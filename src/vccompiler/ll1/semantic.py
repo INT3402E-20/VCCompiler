@@ -1,18 +1,17 @@
 from vccompiler.lexer.token import Token
-from vccompiler.ll1.rule import CSTNode
 
 
-def left_to_right(root: CSTNode, precedences: set[int]):
+def left_to_right(root, precedences: set[int]):
     if root.precedence not in precedences:
-        for i in range(len(root.children)):
-            root.set_ith_child(left_to_right(root.children[i], precedences), i)
+        for i, child in enumerate(root.children):
+            root.set_ith_child(left_to_right(child, precedences), i)
         return root
 
     descendants = []
     operators = []
 
     # recursively retrieve tree nodes
-    def dfs(node: CSTNode, operand_set: list[tuple[CSTNode, int]]):
+    def dfs(node, operand_set):
         for pos, child in enumerate(node.children):
             if pos in node.operands:
                 operand_set.append((node, pos))
@@ -40,7 +39,9 @@ def left_to_right(root: CSTNode, precedences: set[int]):
     assert len(stack) == 1
 
     for child in descendants:
-        child.parent.set_ith_child(left_to_right(child, precedences), child.child_pos)
+        parent = child.parent
+        child_pos = child.child_pos
+        parent.set_ith_child(left_to_right(child, precedences), child_pos)
 
     return stack.pop()
 
