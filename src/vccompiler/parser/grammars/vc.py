@@ -16,10 +16,9 @@ declare_type = S("declare-type")
 vc_type = S("type", TokenEnum.TYPE_INIT)
 identifier = S("identifier", TokenEnum.IDENTIFIER)
 
-func_decl = S("func-decl")
+func_decl_suffix = S("func-decl-suffix")
 para_list = S("para-list")
 para_list_suffix = S("para-list-suffix")
-compound_stmt = S("compound-stmt")
 proper_para_list = S("proper-para-list")
 proper_para_list_suffix = S("proper-para-list-suffix")
 para_decl = S("para-decl")
@@ -28,19 +27,22 @@ arg_list_suffix = S("arg-list-suffix")
 proper_arg_list = S("proper-arg-list")
 proper_arg_list_suffix = S("proper-arg-list-suffix")
 arg = S("arg")
+
+var_decl = S("var-decl")
+var_decl_suffix = S("var-decl-suffix")
+many_init_declarator = S("init-declarator*")
+init_declarator = S("init-declarator")
+init_declarator_suffix = S("init-declarator-suffix")
+declarator = S("declarator")
+initialiser = S("initialiser")
+initialiser_assign = S("initialiser-assign")
 array_decl = S("array-decl")
 array_size = S("array-size")
-
-temp_compound = S("temp-compound")
-var_decl = S("var-decl")
-temp_compound_next = S("temp-compound-next")
-init_decl_tial = S("init-decl-tial")
-temp_init_decl = S("temp-init-decl")
-init_decl = S("init-decl")
-initialiser = S("initialiser")
 many_expr = S("many-expr")
-expr = S("expr")
-is_expr = S("expr?")
+
+compound_stmt = S("compound-stmt")
+compound_stmt_inner = S("compound-stmt-inner")
+many_stmt = S("stmt*")
 
 stmt = S("stmt")
 if_stmt = S("if-stmt")
@@ -51,7 +53,9 @@ break_stmt = S("break-stmt")
 continue_stmt = S("continue-stmt")
 return_stmt = S("return-stmt")
 expr_stmt = S("expr-stmt")
+is_expr = S("expr?")
 
+expr = S("expr")
 assignment_expr = S("assignment-expr")
 assignment_expr_suffix = S("assignment-expr-suffix")
 cond_or_expr = S("cond-or-expr")
@@ -74,12 +78,12 @@ program_rules = [
     R(program, vc_type, identifier, declare_type, program, formatter="{0} {1}{2}{=}{3}"),
     R(program, S.eps),
 
-    R(declare_type, func_decl),
-    R(declare_type, var_decl),
+    R(declare_type, func_decl_suffix),
+    R(declare_type, var_decl_suffix),
 ]
 
 function_rules = [
-    R(func_decl, para_list, compound_stmt, formatter="{0}{=}{1}"),
+    R(func_decl_suffix, para_list, compound_stmt, formatter="{0}{=}{1}"),
 
     R(para_list, "(", para_list_suffix),
     R(para_list_suffix, proper_para_list, ")"),
@@ -103,20 +107,30 @@ function_rules = [
 ]
 
 declaration_rules = [
-    R(var_decl, array_decl, init_decl_tial, temp_init_decl, ";"),
-    R(temp_init_decl, ",", init_decl, temp_init_decl),
-    R(temp_init_decl, S.eps),
-    R(init_decl, identifier, array_decl, init_decl_tial),
-    R(init_decl_tial, "=", initialiser, formatter=" = {1}"),
-    R(init_decl_tial, S.eps),
-    R(initialiser, expr),
-    R(initialiser, "{", expr, many_expr, "}"),
-    R(many_expr, ",", expr, many_expr),
-    R(many_expr, S.eps),
+    R(var_decl_suffix, array_decl, initialiser_assign, many_init_declarator, ";"),
+    R(many_init_declarator, ",", init_declarator, many_init_declarator),
+    R(many_init_declarator, S.eps),
+
+    R(var_decl, vc_type, init_declarator, many_init_declarator, ";", formatter="{0} {1}{2};"),
+
+    R(initialiser_assign, "=", initialiser, formatter=" = {1}"),
+    R(initialiser_assign, S.eps),
+
+    R(init_declarator, declarator, init_declarator_suffix),
+    R(init_declarator_suffix, "=", initialiser),
+    R(init_declarator_suffix, S.eps),
+
+    R(declarator, identifier, array_decl),
+
     R(array_decl, "[", array_size, "]"),
     R(array_decl, S.eps),
     R(array_size, TokenEnum.INTLITERAL),
     R(array_size, S.eps),
+
+    R(initialiser, expr),
+    R(initialiser, "{", expr, many_expr, "}"),
+    R(many_expr, ",", expr, many_expr),
+    R(many_expr, S.eps),
 ]
 
 statement_rules = [
@@ -131,18 +145,18 @@ statement_rules = [
 ]
 
 compound_stmt_rules = [
-    R(compound_stmt, "{", temp_compound_next, "}", formatter="{{{>}{1}{<}}}"),
-    R(temp_compound, vc_type, var_decl, temp_compound_next),
-    R(temp_compound, stmt, temp_compound_next),
-    R(temp_compound_next, temp_compound),
-    R(temp_compound_next, S.eps),
+    R(compound_stmt, "{", compound_stmt_inner, "}", formatter="{{{>}{1}{<}}}"),
+    R(many_stmt, stmt, many_stmt, formatter="{0}{=}{1}"),
+    R(many_stmt, S.eps),
+    R(compound_stmt_inner, var_decl, compound_stmt_inner, formatter="{0}{=}{1}"),
+    R(compound_stmt_inner, many_stmt),
 ]
 
 other_stmt_rules = [
     R(if_stmt, "if", "(", expr, ")", stmt, else_stmt, formatter="if ({2}){=}{{{>}{4}{<}}}{5}"),
     R(else_stmt, S.eps),
     R(else_stmt, "else", stmt, formatter="{=}else{=}{{{>}{1}{<}}}"),
-    R(for_stmt, "for", "(", is_expr, ";", is_expr, ";", is_expr, ")", stmt),
+    R(for_stmt, "for", "(", is_expr, ";", is_expr, ";", is_expr, ")", stmt, formatter="for ({2}; {4}; {6}){=}{8}"),
     R(while_stmt, "while", "(", expr, ")", stmt),
     R(break_stmt, "break", ";"),
     R(continue_stmt, "continue", ";"),
