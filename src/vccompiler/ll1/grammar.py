@@ -23,7 +23,7 @@ class LL1GrammarError(VCException):
 
 
 class LL1Grammar:
-    def __init__(self, start, conflict_handler=None):
+    def __init__(self, start, conflict_handler=None, **semantics):
         self.production_rules = []
         self.first_table = None
         self.follow_table = None
@@ -31,6 +31,7 @@ class LL1Grammar:
         self.terminals = set()
         self.non_terminals = set()
         self.conflict_handler = conflict_handler
+        self.semantics = semantics
 
         self.start = Symbol("grammar-start")
         eof = Symbol("EOF", EOF)
@@ -184,7 +185,8 @@ class LL1Grammar:
                     continue
                 assert rule.lhs == sym
 
-                node.children = [CSTNode() for _ in range(len(rule.rhs))]
+                for _ in range(len(rule.rhs)):
+                    node.add_child(CSTNode())
 
                 # push the production rule to the stack in reversed order
                 stack.extend(reversed(list(zip(rule.rhs, node.children))))

@@ -38,7 +38,28 @@ class CSTNode:
     def __init__(self, rule=None):
         self.rule = rule
         self.children = []
+        self.parent = None
+        self.child_pos = None
+
+    def set_ith_child(self, child, i):
+        self.children[i] = child
+        child.parent = self
+        child.child_pos = i
+
+    def add_child(self, *children):
+        for child in children:
+            self.children.append(child)
+            child.parent = self
+            child.child_pos = len(self.children) - 1
 
     @property
     def semantics(self):
         return self.rule.semantics if isinstance(self.rule, Rule) else {}
+
+    @property
+    def precedence(self):
+        return -1 if "op_prec" not in self.semantics else self.semantics["op_prec"]
+
+    @property
+    def operands(self):
+        return [] if "op" not in self.semantics else self.semantics["op"]

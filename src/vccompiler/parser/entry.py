@@ -8,6 +8,7 @@ from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
 from vccompiler.ll1.grammar import LL1ParserError
 from vccompiler.ll1.format import CSTFormatter
+from vccompiler.ll1.semantic import left_to_right, cst_pruning
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,13 @@ def main():
         cst = grammar.parse(tokens)
     except LL1ParserError as e:
         raise ParserError(source, e.token.start_pos, e.what)
+
+    # resolve left associativity
+    if "left_to_right" in grammar.semantics:
+        left_to_right(cst, grammar.semantics["left_to_right"])
+
+    # parse tree pruning
+    cst_pruning(cst)
 
     engine = CSTFormatter()
     if args.tab:
