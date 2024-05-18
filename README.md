@@ -1,11 +1,22 @@
 # vccompiler
 
+Efficient lexer & parser for VC language
 
 ## Install
 
 ```shell
 $ git clone https://github.com/INT3402E-20/VCCompiler.git
 $ python3 -m pip install .
+```
+
+In order to draw the parse tree, the following dependencies are required:
+- [networkx](https://github.com/networkx/networkx) and [pydot](https://github.com/pydot/pydot)
+```shell
+$ python3 -m pip install networkx pydot
+```
+- [graphviz](https://www.graphviz.org/download/): follow the link for guided installation; also available in conda
+```shell
+$ conda install graphviz
 ```
 
 ## Usage
@@ -23,6 +34,28 @@ options:
   -o OUTPUT, --output OUTPUT
                         output file
   -r RULE, --rule RULE  rules file
+```
+
+```shell
+$ vcparser -h
+usage: vcparser [-h] [-v] [-o OUTPUT] [--tab TAB] [--eol EOL] [--draw PATH] input
+
+positional arguments:
+  input                 source file
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         default: WARN; (-v): INFO; (-vv): DEBUG
+  -o OUTPUT, --output OUTPUT
+                        output file
+  --tab TAB             tab character
+  --eol EOL             end of line character
+  --draw PATH           draw parse tree to dot file
+```
+
+Use graphviz to convert dot files into your preferred format:
+```shell
+$ dot -Tsvg cst.dot -o cst.svg
 ```
 
 ## Structure
