@@ -35,7 +35,7 @@ def main():
     parser.add_argument('--eol',
                         help='end of line character',
                         type=str)
-    parser.add_argument('--draw',
+    parser.add_argument('--draw', metavar='PATH',
                         help='draw parse tree to dot file',
                         type=argparse.FileType('w'))
 
