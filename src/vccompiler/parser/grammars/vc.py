@@ -75,7 +75,8 @@ primary_expr = S("primary-expr")
 primary_expr_suffix = S("primary-expr-suffix")
 
 program_rules = [
-    R(program, vc_type, identifier, declare_type, program, formatter="{0} {1}{2}{=}{3}"),
+    R(program, vc_type, identifier, declare_type,
+      program, formatter="{0} {1}{2}{=}{3}"),
     R(program, S.eps),
 
     R(declare_type, func_decl_suffix),
@@ -100,7 +101,7 @@ function_rules = [
     R(arg_list_suffix, ")"),
 
     R(proper_arg_list, arg, proper_arg_list_suffix),
-    R(proper_arg_list_suffix, ",", arg),
+    R(proper_arg_list_suffix, ",", arg, proper_arg_list_suffix),
     R(proper_arg_list_suffix, S.eps),
 
     R(arg, expr),
@@ -111,7 +112,8 @@ declaration_rules = [
     R(many_init_declarator, ",", init_declarator, many_init_declarator),
     R(many_init_declarator, S.eps),
 
-    R(var_decl, vc_type, init_declarator, many_init_declarator, ";", formatter="{0} {1}{2};"),
+    R(var_decl, vc_type, init_declarator,
+      many_init_declarator, ";", formatter="{0} {1}{2};"),
 
     R(initialiser_assign, "=", initialiser, formatter=" = {1}"),
     R(initialiser_assign, S.eps),
@@ -148,15 +150,18 @@ compound_stmt_rules = [
     R(compound_stmt, "{", compound_stmt_inner, "}", formatter="{{{>}{1}{<}}}"),
     R(many_stmt, stmt, many_stmt, formatter="{0}{=}{1}"),
     R(many_stmt, S.eps),
-    R(compound_stmt_inner, var_decl, compound_stmt_inner, formatter="{0}{=}{1}"),
+    R(compound_stmt_inner, var_decl,
+      compound_stmt_inner, formatter="{0}{=}{1}"),
     R(compound_stmt_inner, many_stmt),
 ]
 
 other_stmt_rules = [
-    R(if_stmt, "if", "(", expr, ")", stmt, else_stmt, formatter="if ({2}){=}{{{>}{4}{<}}}{5}"),
+    R(if_stmt, "if", "(", expr, ")", stmt, else_stmt,
+      formatter="if ({2}){=}{{{>}{4}{<}}}{5}"),
     R(else_stmt, S.eps),
     R(else_stmt, "else", stmt, formatter="{=}else{=}{{{>}{1}{<}}}"),
-    R(for_stmt, "for", "(", is_expr, ";", is_expr, ";", is_expr, ")", stmt, formatter="for ({2}; {4}; {6}){=}{8}"),
+    R(for_stmt, "for", "(", is_expr, ";", is_expr, ";", is_expr, ")",
+      stmt, formatter="for ({2}; {4}; {6}){=}{8}"),
     R(while_stmt, "while", "(", expr, ")", stmt),
     R(break_stmt, "break", ";"),
     R(continue_stmt, "continue", ";"),
@@ -169,38 +174,55 @@ other_stmt_rules = [
 expr_rules = [
     R(expr, assignment_expr),
 
-    R(assignment_expr, cond_or_expr, assignment_expr_suffix, formatter="({0}{1})"),
+    R(assignment_expr, cond_or_expr,
+      assignment_expr_suffix, formatter="({0}{1})"),
     R(assignment_expr_suffix, "=", assignment_expr, formatter=" = {1}"),
     R(assignment_expr_suffix, S.eps),
 
-    R(cond_or_expr, cond_and_expr, cond_or_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=7),
-    R(cond_or_expr_suffix, "||", cond_or_expr, formatter=" || {1}", op=(1,), op_prec=7),
+    R(cond_or_expr, cond_and_expr, cond_or_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=7),
+    R(cond_or_expr_suffix, "||", cond_or_expr,
+      formatter=" || {1}", op=(1,), op_prec=7),
     R(cond_or_expr_suffix, S.eps),
 
-    R(cond_and_expr, equality_expr, cond_and_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=6),
-    R(cond_and_expr_suffix, "&&", cond_and_expr, formatter=" && {1}", op=(1,), op_prec=6),
+    R(cond_and_expr, equality_expr, cond_and_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=6),
+    R(cond_and_expr_suffix, "&&", cond_and_expr,
+      formatter=" && {1}", op=(1,), op_prec=6),
     R(cond_and_expr_suffix, S.eps),
 
-    R(equality_expr, rel_expr, equality_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=5),
-    R(equality_expr_suffix, "==", equality_expr, formatter=" == {1}", op=(1,), op_prec=5),
-    R(equality_expr_suffix, "!=", equality_expr, formatter=" != {1}", op=(1,), op_prec=5),
+    R(equality_expr, rel_expr, equality_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=5),
+    R(equality_expr_suffix, "==", equality_expr,
+      formatter=" == {1}", op=(1,), op_prec=5),
+    R(equality_expr_suffix, "!=", equality_expr,
+      formatter=" != {1}", op=(1,), op_prec=5),
     R(equality_expr_suffix, S.eps),
 
-    R(rel_expr, additive_expr, rel_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=4),
+    R(rel_expr, additive_expr, rel_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=4),
     R(rel_expr_suffix, "<", rel_expr, formatter=" < {1}", op=(1,), op_prec=4),
-    R(rel_expr_suffix, "<=", rel_expr, formatter=" <= {1}", op=(1,), op_prec=4),
+    R(rel_expr_suffix, "<=", rel_expr,
+      formatter=" <= {1}", op=(1,), op_prec=4),
     R(rel_expr_suffix, ">", rel_expr, formatter=" > {1}", op=(1,), op_prec=4),
-    R(rel_expr_suffix, ">=", rel_expr, formatter=" >= {1}", op=(1,), op_prec=4),
+    R(rel_expr_suffix, ">=", rel_expr,
+      formatter=" >= {1}", op=(1,), op_prec=4),
     R(rel_expr_suffix, S.eps),
 
-    R(additive_expr, multiplicative_expr, additive_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=3),
-    R(additive_expr_suffix, "+", additive_expr, formatter=" + {1}", op=(1,), op_prec=3),
-    R(additive_expr_suffix, "-", additive_expr, formatter=" - {1}", op=(1,), op_prec=3),
+    R(additive_expr, multiplicative_expr, additive_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=3),
+    R(additive_expr_suffix, "+", additive_expr,
+      formatter=" + {1}", op=(1,), op_prec=3),
+    R(additive_expr_suffix, "-", additive_expr,
+      formatter=" - {1}", op=(1,), op_prec=3),
     R(additive_expr_suffix, S.eps),
 
-    R(multiplicative_expr, unary_expr, multiplicative_expr_suffix, formatter="({0}{1})", op=(0,), op_prec=2),
-    R(multiplicative_expr_suffix, "*", multiplicative_expr, formatter=" * {1}", op=(1,), op_prec=2),
-    R(multiplicative_expr_suffix, "/", multiplicative_expr, formatter=" / {1}", op=(1,), op_prec=2),
+    R(multiplicative_expr, unary_expr, multiplicative_expr_suffix,
+      formatter="({0}{1})", op=(0,), op_prec=2),
+    R(multiplicative_expr_suffix, "*", multiplicative_expr,
+      formatter=" * {1}", op=(1,), op_prec=2),
+    R(multiplicative_expr_suffix, "/", multiplicative_expr,
+      formatter=" / {1}", op=(1,), op_prec=2),
     R(multiplicative_expr_suffix, S.eps),
 
     R(unary_expr, primary_expr),
@@ -219,7 +241,8 @@ expr_rules = [
     R(primary_expr_suffix, "[", expr, "]"),
 ]
 
-grammar = L(program, conflict_handler=dangling_else_handler, left_to_right=(2, 3, 4, 5, 6, 7))
+grammar = L(program, conflict_handler=dangling_else_handler,
+            left_to_right=(2, 3, 4, 5, 6, 7))
 
 for rule in program_rules:
     grammar.add_rule(rule)
