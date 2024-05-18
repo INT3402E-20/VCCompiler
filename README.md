@@ -37,8 +37,8 @@ options:
 ```
 
 ```shell
-$ vcparser -h
-usage: vcparser [-h] [-v] [-o OUTPUT] [--tab TAB] [--eol EOL] [--draw PATH] input
+$ vcparser -h                             
+usage: vcparser [-h] [-v] [-o OUTPUT] [--tab TAB] [--eol EOL] [--draw PATH] [--disable-pruning] input
 
 positional arguments:
   input                 source file
@@ -51,6 +51,7 @@ options:
   --tab TAB             tab character
   --eol EOL             end of line character
   --draw PATH           draw parse tree to dot file
+  --disable-pruning     disable parse tree pruning
 ```
 
 Use graphviz to convert dot files into your preferred format:

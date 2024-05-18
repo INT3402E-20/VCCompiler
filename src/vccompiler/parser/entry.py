@@ -38,6 +38,9 @@ def main():
     parser.add_argument('--draw', metavar='PATH',
                         help='draw parse tree to dot file',
                         type=argparse.FileType('w'))
+    parser.add_argument('--disable-pruning',
+                        help='disable parse tree pruning',
+                        action='store_true')
 
     args = parser.parse_args()
 
@@ -67,7 +70,8 @@ def main():
     cst.left_to_right()
 
     # parse tree pruning
-    cst.prune()
+    if not args.disable_pruning:
+        cst.prune()
 
     # draw parse tree
     if args.draw:
