@@ -35,9 +35,15 @@ def main():
     parser.add_argument('--eol',
                         help='end of line character',
                         type=str)
-    parser.add_argument('--draw',
+    parser.add_argument('--draw', metavar='PATH',
                         help='draw parse tree to dot file',
                         type=argparse.FileType('w'))
+    parser.add_argument('--disable-pruning',
+                        help='disable parse tree pruning',
+                        action='store_true')
+    parser.add_argument('--disable-left',
+                        help='disable left associative transformation',
+                        action='store_true')
 
     args = parser.parse_args()
 
@@ -64,10 +70,12 @@ def main():
         raise ParserError(source, e.token.start_pos, e.what)
 
     # resolve left associativity
-    cst.left_to_right()
+    if not args.disable_left:
+        cst.left_to_right()
 
     # parse tree pruning
-    cst.prune()
+    if not args.disable_pruning:
+        cst.prune()
 
     # draw parse tree
     if args.draw:

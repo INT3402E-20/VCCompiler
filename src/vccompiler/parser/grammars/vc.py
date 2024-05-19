@@ -91,17 +91,17 @@ function_rules = [
     R(para_list_suffix, ")"),
 
     R(proper_para_list, para_decl, proper_para_list_suffix),
-    R(proper_para_list_suffix, ",", proper_para_list),
+    R(proper_para_list_suffix, ",", proper_para_list, formatter=", {1}"),
     R(proper_para_list_suffix, S.eps),
 
-    R(para_decl, vc_type, identifier, array_decl),
+    R(para_decl, vc_type, identifier, array_decl, formatter="{0} {1}{2}"),
 
     R(arg_list, "(", arg_list_suffix),
     R(arg_list_suffix, proper_arg_list, ")"),
     R(arg_list_suffix, ")"),
 
     R(proper_arg_list, arg, proper_arg_list_suffix),
-    R(proper_arg_list_suffix, ",", arg, proper_arg_list_suffix),
+    R(proper_arg_list_suffix, ",", proper_arg_list, formatter=", {1}"),
     R(proper_arg_list_suffix, S.eps),
 
     R(arg, expr),
@@ -165,7 +165,7 @@ other_stmt_rules = [
     R(while_stmt, "while", "(", expr, ")", stmt),
     R(break_stmt, "break", ";"),
     R(continue_stmt, "continue", ";"),
-    R(return_stmt, "return", is_expr, ";"),
+    R(return_stmt, "return", is_expr, ";", formatter="return {1};"),
     R(expr_stmt, is_expr, ";"),
     R(is_expr, expr),
     R(is_expr, S.eps),
