@@ -111,8 +111,7 @@ declaration_rules = [
     R(many_init_declarator, ",", init_declarator, many_init_declarator),
     R(many_init_declarator, S.eps),
 
-    R(var_decl, vc_type, init_declarator,
-      many_init_declarator, ";", formatter="{0} {1}{2};"),
+    R(var_decl, vc_type, init_declarator, many_init_declarator, ";", formatter="{0} {1}{2};"),
 
     R(initialiser_assign, "=", initialiser, formatter=" = {1}"),
     R(initialiser_assign, S.eps),
@@ -220,8 +219,7 @@ expr_rules = [
     R(primary_expr_suffix, "[", expr, "]"),
 ]
 
-grammar = L(program, conflict_handler=dangling_else_handler,
-            left_to_right=(2, 3, 4, 5, 6, 7))
+grammar = L(program, conflict_handler=dangling_else_handler, left_to_right=(2, 3, 4, 5, 6, 7))
 
 for rule in program_rules:
     grammar.add_rule(rule)
