@@ -7,6 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class CSTNode:
+    """
+    Initialize a CSTNode.
+
+    Args:
+        id: The unique identifier for the node.
+        rule: The associated rule (optional).
+    """
     def __init__(self, id, rule=None):
         self.id = id
         self.rule = rule
@@ -15,11 +22,24 @@ class CSTNode:
         self.child_pos = None
 
     def set_ith_child(self, child, i):
+        """
+        Set the i-th child of the node.
+
+        Args:
+            child: The child node to set.
+            i: The index of the child.
+        """
         self.children[i] = child
         child.parent = self
         child.child_pos = i
 
     def add_child(self, *children):
+        """
+        Add one or more children to the node.
+
+        Args:
+            children: The child nodes to add.
+        """
         for child in children:
             self.children.append(child)
             child.parent = self
@@ -27,14 +47,32 @@ class CSTNode:
 
     @property
     def semantics(self):
+        """
+        Get the semantics associated with the node's rule.
+
+        Returns:
+            dict: A dictionary containing semantic information.
+        """
         return self.rule.semantics if isinstance(self.rule, Rule) else {}
 
     @property
     def precedence(self):
+        """
+        Get the precedence of the node.
+
+        Returns:
+            int: The precedence value.
+        """
         return -1 if "op_prec" not in self.semantics else self.semantics["op_prec"]
 
     @property
     def operands(self):
+        """
+        Get the operand indices associated with the node.
+
+        Returns:
+            list: A list of operands.
+        """
         return [] if "op" not in self.semantics else self.semantics["op"]
 
     def __str__(self):

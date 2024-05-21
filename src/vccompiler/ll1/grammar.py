@@ -24,6 +24,14 @@ class LL1GrammarError(VCException):
 
 
 class LL1Grammar:
+    """
+    Represents an LL(1) grammar.
+
+    Args:
+        start: The start symbol for the grammar.
+        conflict_handler: A custom conflict handler (optional).
+        **semantics: Additional semantic information (optional).
+    """
     def __init__(self, start, conflict_handler=None, **semantics):
         self.production_rules = []
         self.first_table = None
@@ -39,6 +47,12 @@ class LL1Grammar:
         self.add_rule(Rule(self.start, (start, eof)))
 
     def add_symbol(self, sym):
+        """
+        Add a symbol to the grammar.
+
+        Args:
+            sym: The symbol to add.
+        """
         assert isinstance(sym, Symbol)
         if sym.is_terminal:
             self.terminals.add(sym)
@@ -46,12 +60,27 @@ class LL1Grammar:
             self.non_terminals.add(sym)
 
     def add_rule(self, rule: Rule):
+        """
+        Add a production rule to the grammar.
+
+        Args:
+            rule: The production rule to add.
+        """
         self.add_symbol(rule.lhs)
         for beta in rule.rhs:
             self.add_symbol(beta)
         self.production_rules.append(rule)
 
     def get_first(self, *syms):
+        """
+        Compute the FIRST set for a sequence of symbols.
+
+        Args:
+            syms: The symbols for which to compute the FIRST set.
+
+        Returns:
+            set: The computed FIRST set.
+        """
         first_set = set()
         nullable = True
         for sym in syms:
@@ -66,6 +95,9 @@ class LL1Grammar:
         return first_set
 
     def build_first(self):
+        """
+        Compute the FIRST sets for all symbols in the grammar.
+        """
         self.first_table = {}
         for sym in self.terminals:
             self.first_table[sym] = {sym}
@@ -90,6 +122,9 @@ class LL1Grammar:
                     update(rule.lhs, sym)
 
     def build_follow(self):
+        """
+        Compute the FOLLOW sets for all non-terminal symbols in the grammar.
+        """
         self.follow_table = {}
         for sym in self.non_terminals:
             self.follow_table[sym] = set()
@@ -119,6 +154,9 @@ class LL1Grammar:
                                 update(beta, sym)
 
     def build_ll1(self):
+        """
+        Compute the LL1 table.
+        """
         self.parsing_table = dict()
 
         def update(alpha, sym, entry):
@@ -137,10 +175,13 @@ class LL1Grammar:
         for rule in self.production_rules:
             first_set = self.get_first(*rule.rhs)
             for sym in first_set:
+                # table[A, t] = X for all terminal t in first(X), A -> X
                 if sym in self.terminals:
                     update(rule.lhs, sym, rule)
             if Symbol.eps in first_set:
+                # if eps in first(X)
                 for sym in self.follow_table[rule.lhs]:
+                    # table[A, t] = X for all terminal t in follow(X) if eps in first(X), A -> X
                     update(rule.lhs, sym, Symbol.eps)
 
     def build(self):
@@ -149,6 +190,11 @@ class LL1Grammar:
         self.build_ll1()
 
     def parse(self, tokens):
+        """
+        Parse the given sequence of tokens.
+        :param tokens:
+        :return: generated parse tree
+        """
         tokens.append(Token(EOF, TokenEnum.EOF))
         tree = CST(self.semantics)
         stack = [(self.start, tree.root)]
@@ -206,6 +252,11 @@ class LL1Grammar:
 
     @staticmethod
     def from_yaml(file):
+        """
+        Generate LL1 grammar given a YAML file.
+        :param file:
+        :return:
+        """
         try:
             from yaml import safe_load
         except ImportError:

@@ -4,8 +4,28 @@ from vccompiler.lexer.token import Token, TokenEnum
 
 
 class CSTFormatter:
+    """
+    A formatter for Concrete Syntax Trees (CSTs).
+
+    Args:
+        indent (int): The initial indentation level (default is 0).
+        tab (str): The string used for indentation (default is '\\t').
+        eol (str): The end-of-line character (default is '\\n').
+    """
     class NodeFormatter(Formatter):
+        """
+        A specialized formatter for CST nodes.
+        """
         def parse(self, format_string):
+            """
+            Parse the format string.
+
+            Args:
+                format_string (str): The format string to parse.
+
+            Returns:
+                zip: A zipped iterable of format components.
+            """
             return zip(*list(zip(*super().parse(format_string)))[:2])
 
     def __init__(self, indent=0, tab='\t', eol='\n'):
@@ -14,6 +34,15 @@ class CSTFormatter:
         self.indent = indent
 
     def format(self, root):
+        """
+        Format a CST node.
+
+        Args:
+            root: The root node of the CST.
+
+        Returns:
+            str: The formatted source code.
+        """
         if isinstance(root.rule, Token):
             token = root.rule
             return "" if token.kind == TokenEnum.EOF else token.value
