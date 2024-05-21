@@ -9,6 +9,10 @@ description = "Efficient lexer for VC language"
 readme = "README.md"
 requires-python = ">=3.8"
 
+[project.optional-dependencies]
+yaml = ["PyYAML"]
+tree = ["networkx", "pydot"]
+
 [project.urls]
 Homepage = "https://github.com/INT3402E-20/VCCompiler"
 Issues = "https://github.com/INT3402E-20/VCCompiler/issues"

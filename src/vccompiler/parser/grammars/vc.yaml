@@ -1,0 +1,271 @@
+symbols:
+    program:
+    declare-type:
+    type: T.TYPE_INIT
+    identifier: T.IDENTIFIER
+
+    func-decl-suffix:
+    para-list:
+    para-list-suffix:
+    proper-para-list:
+    proper-para-list-suffix:
+    para-decl:
+    arg-list:
+    arg-list-suffix:
+    proper-arg-list:
+    proper-arg-list-suffix:
+    arg:
+    var-decl:
+    var-decl-suffix:
+    init-declarator*:
+    init-declarator:
+    init-declarator-suffix:
+    declarator:
+    initialiser:
+    initialiser-assign:
+    array-decl:
+    array-size:
+    many-expr:
+
+    compound-stmt:
+    compound-stmt-inner:
+    stmt*:
+
+    stmt:
+    if-stmt:
+    else-stmt:
+    for-stmt:
+    while-stmt:
+    break-stmt:
+    continue-stmt:
+    return-stmt:
+    expr-stmt:
+    is-expr:
+
+    expr:
+    assignment-expr:
+    assignment-expr-suffix:
+    cond-or-expr:
+    cond-or-expr-suffix:
+    cond-and-expr:
+    cond-and-expr-suffix:
+    equality-expr:
+    equality-expr-suffix:
+    rel-expr:
+    rel-expr-suffix:
+    additive-expr:
+    additive-expr-suffix:
+    multiplicative-expr:
+    multiplicative-expr-suffix:
+    unary-expr:
+    primary-expr:
+    primary-expr-suffix:
+
+rules:
+    - R: [program, type, identifier, declare-type, program]
+      formatter: "{0} {1}{2}{=}{3}"
+    - R: [program, S.eps]
+    - R: [declare-type, func-decl-suffix]
+    - R: [declare-type, var-decl-suffix]
+
+    - R: [func-decl-suffix, para-list, compound-stmt]
+      formatter: "{0}{=}{1}"
+
+    - R: [para-list, '"("', para-list-suffix]
+    - R: [para-list-suffix, proper-para-list, '")"']
+    - R: [para-list-suffix, '")"']
+
+    - R: [proper-para-list, para-decl, proper-para-list-suffix]
+    - R: [proper-para-list-suffix, '","', proper-para-list]
+      formatter: ", {1}"
+    - R: [proper-para-list-suffix, S.eps]
+
+    - R: [para-decl, type, identifier, array-decl]
+      formatter: "{0} {1}{2}"
+
+    - R: [arg-list, '"("', arg-list-suffix]
+    - R: [arg-list-suffix, proper-arg-list, '")"']
+    - R: [arg-list-suffix, '")"']
+
+    - R: [proper-arg-list, arg, proper-arg-list-suffix]
+    - R: [proper-arg-list-suffix, '","', proper-arg-list]
+      formatter: ", {1}"
+    - R: [proper-arg-list-suffix, S.eps]
+
+    - R: [arg, expr]
+
+    - R: [var-decl-suffix, array-decl, initialiser-assign, init-declarator*, '";"']
+    - R: [init-declarator*, '","', init-declarator, init-declarator*]
+    - R: [init-declarator*, S.eps]
+
+    - R: [var-decl, type, init-declarator, init-declarator*, '";"']
+      formatter: "{0} {1}{2};"
+
+    - R: [initialiser-assign, '"="', initialiser]
+      formatter: " = {1}"
+    - R: [initialiser-assign, S.eps]
+
+    - R: [init-declarator, declarator, init-declarator-suffix]
+    - R: [init-declarator-suffix, '"="', initialiser]
+    - R: [init-declarator-suffix, S.eps]
+
+    - R: [declarator, identifier, array-decl]
+
+    - R: [array-decl, '"["', array-size, '"]"']
+    - R: [array-decl, S.eps]
+    - R: [array-size, T.INTLITERAL]
+    - R: [array-size, S.eps]
+
+    - R: [initialiser, expr]
+    - R: [initialiser, '"{"', expr, many-expr, '"}"']
+    - R: [many-expr, '","', expr, many-expr]
+    - R: [many-expr, S.eps]
+
+    - R: [stmt, compound-stmt]
+    - R: [stmt, if-stmt]
+    - R: [stmt, for-stmt]
+    - R: [stmt, while-stmt]
+    - R: [stmt, break-stmt]
+    - R: [stmt, continue-stmt]
+    - R: [stmt, return-stmt]
+    - R: [stmt, expr-stmt]
+
+    - R: [compound-stmt, '"{"', compound-stmt-inner, '"}"']
+      formatter: "{{{>}{1}{<}}}"
+    - R: [stmt*, stmt, stmt*]
+      formatter: "{0}{=}{1}"
+    - R: [stmt*, S.eps]
+    - R: [compound-stmt-inner, var-decl, compound-stmt-inner]
+      formatter: "{0}{=}{1}"
+    - R: [compound-stmt-inner, stmt*]
+
+    - R: [if-stmt, '"if"', '"("', expr, '")"', stmt, else-stmt]
+      formatter: "if ({2}){=}{{{>}{4}{<}}}{5}"
+    - R: [else-stmt, S.eps]
+    - R: [else-stmt, '"else"', stmt]
+      formatter: "{=}else{=}{{{>}{1}{<}}}"
+    - R: [for-stmt, '"for"', '"("', is-expr, '";"', is-expr, '";"', is-expr, '")"', stmt]
+      formatter: "for ({2}; {4}; {6}){=}{8}"
+    - R: [while-stmt, '"while"', '"("', expr, '")"', stmt]
+    - R: [break-stmt, '"break"', '";"']
+    - R: [continue-stmt, '"continue"', '";"']
+    - R: [return-stmt, '"return"', is-expr, '";"']
+      formatter: "return {1};"
+    - R: [expr-stmt, is-expr, '";"']
+    - R: [is-expr, expr]
+    - R: [is-expr, S.eps]
+
+    - R: [expr, assignment-expr]
+
+    - R: [assignment-expr, cond-or-expr, assignment-expr-suffix]
+      formatter: "({0}{1})"
+    - R: [assignment-expr-suffix, '"="', assignment-expr]
+      formatter: " = {1}"
+    - R: [assignment-expr-suffix, S.eps]
+
+    - R: [cond-or-expr, cond-and-expr, cond-or-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 7
+    - R: [cond-or-expr-suffix, '"||"', cond-or-expr]
+      formatter: " || {1}"
+      op: [1]
+      op_prec: 7
+    - R: [cond-or-expr-suffix, S.eps]
+
+    - R: [cond-and-expr, equality-expr, cond-and-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 6
+    - R: [cond-and-expr-suffix, '"&&"', cond-and-expr]
+      formatter: '" && {1}"'
+      op: [1]
+      op_prec: 6
+    - R: [cond-and-expr-suffix, S.eps]
+
+    - R: [equality-expr, rel-expr, equality-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 5
+    - R: [equality-expr-suffix, '"=="', equality-expr]
+      formatter: " == {1}"
+      op: [1]
+      op_prec: 5
+    - R: [equality-expr-suffix, '"!="', equality-expr]
+      formatter: " != {1}"
+      op: [1]
+      op_prec: 5
+    - R: [equality-expr-suffix, S.eps]
+
+    - R: [rel-expr, additive-expr, rel-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 4
+    - R: [rel-expr-suffix, '"<"', rel-expr]
+      formatter: " < {1}"
+      op: [1]
+      op_prec: 4
+    - R: [rel-expr-suffix, '"<="', rel-expr]
+      formatter: " <= {1}"
+      op: [1]
+      op_prec: 4
+    - R: [rel-expr-suffix, '">"', rel-expr]
+      formatter: " > {1}"
+      op: [1]
+      op_prec: 4
+    - R: [rel-expr-suffix, '">="', rel-expr]
+      formatter: " >= {1}"
+      op: [1]
+      op_prec: 4
+    - R: [rel-expr-suffix, S.eps]
+
+    - R: [additive-expr, multiplicative-expr, additive-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 3
+    - R: [additive-expr-suffix, '"+"', additive-expr]
+      formatter: " + {1}"
+      op: [1]
+      op_prec: 3
+    - R: [additive-expr-suffix, '"-"', additive-expr]
+      formatter: " - {1}"
+      op: [1]
+      op_prec: 3
+    - R: [additive-expr-suffix, S.eps]
+
+    - R: [multiplicative-expr, unary-expr, multiplicative-expr-suffix]
+      formatter: "({0}{1})"
+      op: [0]
+      op_prec: 2
+    - R: [multiplicative-expr-suffix, '"*"', multiplicative-expr]
+      formatter: " * {1}"
+      op: [1]
+      op_prec: 2
+    - R: [multiplicative-expr-suffix, '"/"', multiplicative-expr]
+      formatter: " / {1}"
+      op: [1]
+      op_prec: 2
+    - R: [multiplicative-expr-suffix, S.eps]
+
+    - R: [unary-expr, primary-expr]
+    - R: [unary-expr, '"+"', unary-expr]
+      formatter: "(+ {1})"
+    - R: [unary-expr, '"-"', unary-expr]
+      formatter: "(- {1})"
+    - R: [unary-expr, '"!"', unary-expr]
+      formatter: "(! {1})"
+
+    - R: [primary-expr, identifier, primary-expr-suffix]
+    - R: [primary-expr, '"("', expr, '")"']
+    - R: [primary-expr, T.INTLITERAL]
+    - R: [primary-expr, T.FLOATLITERAL]
+    - R: [primary-expr, T.BOOLEANLITERAL]
+    - R: [primary-expr, T.STRINGLITERAL]
+    - R: [primary-expr-suffix, arg-list]
+    - R: [primary-expr-suffix, S.eps]
+    - R: [primary-expr-suffix, '"["', expr, '"]"']
+
+grammar:
+    start: program
+    conflict_handler: dangling_else_handler
+    left_to_right: [2, 3, 4, 5, 6, 7]

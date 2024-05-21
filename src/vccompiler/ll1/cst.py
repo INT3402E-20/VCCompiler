@@ -1,5 +1,9 @@
+import logging
 from vccompiler.ll1.rule import Rule
 from vccompiler.ll1.semantic import left_to_right, cst_pruning
+
+
+logger = logging.getLogger(__name__)
 
 
 class CSTNode:
@@ -60,7 +64,11 @@ class CST:
         return engine.format(self.root)
 
     def draw(self, path):
-        import networkx as nx
+        try:
+            import networkx as nx
+        except ImportError:
+            logger.error("Parse tree export requires networkx and pydot to be installed")
+            return
 
         G = nx.Graph()
 

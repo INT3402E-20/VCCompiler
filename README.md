@@ -6,17 +6,22 @@ Efficient lexer & parser for VC language
 
 ```shell
 $ git clone https://github.com/INT3402E-20/VCCompiler.git
-$ python3 -m pip install .
+$ cd VCCompiler
+$ python3 -m pip install ".[yaml,tree]"
 ```
 
-In order to draw the parse tree, the following dependencies are required:
-- [networkx](https://github.com/networkx/networkx) and [pydot](https://github.com/pydot/pydot)
-```shell
-$ python3 -m pip install networkx pydot
-```
+Feel free to remove the extra dependencies `yaml`, `tree` if YAML import or parse tree export are not needed.
+
+### Parse tree rendering
+In order to render the exported parse tree, the following dependencies are required:
 - [graphviz](https://www.graphviz.org/download/): follow the link for guided installation; also available in conda
 ```shell
 $ conda install graphviz
+```
+
+After than run the following command to export `out.dot` to `out.svg`:
+```shell
+$ dot -Tsvg out.dot -o out.svg
 ```
 
 ## Usage

@@ -1,4 +1,5 @@
 import argparse
+from importlib import resources
 import logging
 import sys
 
@@ -6,7 +7,7 @@ from vccompiler.dfa import DFA
 from vccompiler.exceptions import SourceError
 from vccompiler.lexer import tokenize, rules
 from vccompiler.lexer.token import TokenEnum
-from vccompiler.ll1.grammar import LL1ParserError
+from vccompiler.ll1.grammar import LL1Grammar, LL1ParserError
 from vccompiler.ll1.format import CSTFormatter
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,9 @@ def main():
     parser.add_argument('--disable-left',
                         help='disable left associative transformation',
                         action='store_true')
+    parser.add_argument('--grammar',
+                        help='grammar file (YAML)',
+                        type=argparse.FileType('r'))
 
     args = parser.parse_args()
 
@@ -61,8 +65,12 @@ def main():
     # filter whitespaces and comments
     tokens = [token for token in tokens if token.kind != TokenEnum.WHITESPACE and token.kind != TokenEnum.COMMENT]
 
-    # retrieve default grammar
-    from vccompiler.parser.grammars import vc as grammar
+    # retrieve the grammar
+    if args.grammar:
+        grammar = LL1Grammar.from_yaml(args.grammar.read())
+    else:
+        from vccompiler.parser.grammars import vc as grammar
+    # grammar = LL1Grammar.from_yaml(resources.read_text("vccompiler.parser.grammars", "vc.yaml"))
     grammar.build()
     try:
         cst = grammar.parse(tokens)

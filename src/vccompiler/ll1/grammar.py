@@ -3,7 +3,7 @@ from vccompiler.exceptions import VCException
 from vccompiler.lexer.charset import EOF
 from vccompiler.lexer.token import Token, TokenEnum
 from vccompiler.ll1.cst import CST
-from vccompiler.ll1.rule import Rule
+from vccompiler.ll1.rule import Rule, RuleGenerator
 from vccompiler.ll1.symbol import Symbol
 
 
@@ -203,3 +203,54 @@ class LL1Grammar:
             raise LL1ParserError(tokens[ptr], f"expected EOF, found {tokens[ptr]}")
 
         return tree
+
+    @staticmethod
+    def from_yaml(file):
+        try:
+            from yaml import safe_load
+        except ImportError:
+            logger.error("YAML import requires PyYAML to be installed")
+            return
+
+        parsed = safe_load(file)
+        R = RuleGenerator()
+        rules = []
+        symbol_maps = {}
+
+        for name, hook in parsed["symbols"].items():
+            if hook is not None:
+                if hook.startswith("\""):
+                    hook = hook[1:-1]
+                elif hook.startswith("T."):
+                    hook = TokenEnum[hook[2:]]
+            symbol = Symbol(name, hook=hook)
+            assert name not in symbol_maps
+            symbol_maps[name] = symbol
+
+        for rule in parsed["rules"]:
+            args = []
+            for sym in rule["R"]:
+                if sym.startswith("\""):
+                    sym = sym[1:-1]
+                elif sym.startswith("T."):
+                    sym = TokenEnum[sym[2:]]
+                elif sym == "S.eps":
+                    sym = Symbol.eps
+                else:
+                    sym = symbol_maps[sym]
+                args.append(sym)
+            kwargs = rule.copy()
+            kwargs.pop("R")
+            rules.append(R(*args, **kwargs))
+
+        grammar = parsed["grammar"].copy()
+        start = symbol_maps[grammar.pop("start")]
+        if "conflict_handler" in grammar and grammar["conflict_handler"] == "dangling_else_handler":
+            from vccompiler.parser.grammars.vc import dangling_else_handler
+            grammar["conflict_handler"] = dangling_else_handler
+        grammar = LL1Grammar(start, **grammar)
+
+        for rule in rules:
+            grammar.add_rule(rule)
+
+        return grammar
