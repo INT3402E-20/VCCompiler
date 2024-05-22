@@ -43,7 +43,7 @@ options:
 
 ```shell
 $ vcparser -h
-usage: vcparser [-h] [-v] [-o OUTPUT] [--tab TAB] [--eol EOL] [--draw PATH] [--disable-pruning] [--disable-left] input
+usage: vcparser [-h] [-v] [-o OUTPUT] [--tab TAB] [--eol EOL] [--draw PATH] [--disable-pruning] [--disable-left] [--grammar GRAMMAR] input
 
 positional arguments:
   input                 source file
@@ -58,6 +58,7 @@ options:
   --draw PATH           draw parse tree to dot file
   --disable-pruning     disable parse tree pruning
   --disable-left        disable left associative transformation
+  --grammar GRAMMAR     grammar file (YAML)
 ```
 
 Use graphviz to convert dot files into your preferred format:
